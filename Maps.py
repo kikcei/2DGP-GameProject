@@ -2,7 +2,7 @@ from pico2d import *
 
 class Sky:
     def __init__(self):
-        self.image = load_image('resources/maps/images/1391.png')
+        self.image = load_image('resources/maps/images/1391.jpg')
 
     def update(self):
         pass
