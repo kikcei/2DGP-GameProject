@@ -20,3 +20,16 @@ class Grass:
     def draw(self):
         self.image.draw(400,30)
         pass
+
+class Maps:
+    def __init__(self):
+        self.sky = Sky()
+        self.grass = Grass()
+
+    def update(self):
+        self.sky.update()
+        self.grass.update()
+
+    def draw(self):
+        self.sky.draw()
+        self.grass.draw()
