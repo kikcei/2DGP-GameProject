@@ -8,7 +8,7 @@ class Sky:
         pass
 
     def draw(self):
-        self.image.draw(400, 300)
+        self.image.draw(300, 500)
         pass
 
 class Grass:
@@ -18,7 +18,7 @@ class Grass:
         pass
 
     def draw(self):
-        self.image.draw(400,30)
+        self.image.draw(400,300)
         pass
 
 class Maps:
@@ -31,5 +31,6 @@ class Maps:
         self.grass.update()
 
     def draw(self):
+
         self.sky.draw()
         self.grass.draw()
