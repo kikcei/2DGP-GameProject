@@ -14,6 +14,7 @@ def main():
         clear_canvas()  # 이전 프레임 지움
 
         map.draw()  # 지도
+        player.handle_events()
         player.update()  # 플레이어 상태 업데이트
         player.draw()  # 플레이어 그리기
 
