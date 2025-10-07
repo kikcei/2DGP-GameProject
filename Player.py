@@ -22,6 +22,7 @@ class Player:
             image = load_image(path)
             self.image_players_walk.append(image)
 
+        self.image_players_shadow = load_image('resources/Players/sprites/DefineSprite_45/1.png')
         self.image_players_stop_leg = load_image('resources/Players/sprites/DefineSprite_124/1.png')
 
 
@@ -82,11 +83,15 @@ class Player:
             self.frame_players_walk = (self.frame_players_walk + 1) % 10
 
     def draw(self):
+        self.image_players_shadow.draw(self.x - 5, self.y - 74)
+
         if(self.state == 'stop'):
             self.image_players_stop_leg.draw(self.x - 3, self.y - 56)  # Adjust y position for leg
             self.image_players_stop_body[self.frame_players_stop_body].draw(self.x, self.y)
         elif(self.state == 'walk'):
             self.image_players_walk[self.frame_players_walk].draw(self.x, self.y)
+
+
 
 
 
