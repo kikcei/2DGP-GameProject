@@ -60,24 +60,20 @@ class Player:
             self.frame_players_walk = (self.frame_players_stop_leg + 1) % 11
 
     def draw(self):
-        if self.state == 'idle':
-            self.image_stop.clip_draw(
-                self.frame * self.stop_frame_w, 0,
-                self.stop_frame_w, self.stop_frame_h,
-                self.x, self.y
-            )
-        elif self.state == 'walk':
-            self.image_walk.clip_draw(
-                self.frame * self.walk_frame_w, 0,
-                self.walk_frame_w, self.walk_frame_h,
-                self.x, self.y
-            )
+        if(self.state == 'stop'):
+            self.image_players_stop_leg.draw(self.x - 3, self.y - 56)  # Adjust y position for leg
+            self.image_players_stop_body[self.frame_players_stop_body].draw(self.x, self.y)
+        elif(self.state == 'walk'):
+            self.image_players_walk[self.frame_players_walk].draw(self.x, self.y)
 
 
 
 class All_Player:
     def __init__(self):
         self.player = Player()
+
+    def handle_events(self):
+        self.player.handle_events()
 
     def update(self):
         self.player.update()
