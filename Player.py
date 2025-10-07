@@ -43,33 +43,32 @@ class Player:
                 exit(0)
             elif event.type == SDL_KEYDOWN:
                 if event.key == SDLK_RIGHT:
-                    self.dirx = 1
-                    self.state = 'walk'
+                    self.dirx += 1
                 elif event.key == SDLK_LEFT:
-                    self.dirx = -1
-                    self.state = 'walk'
+                    self.dirx += -1
                 elif event.key == SDLK_UP:
-                    self.diry = 1
-                    self.state = 'walk'
+                    self.diry += 1
                 elif event.key  == SDLK_DOWN:
-                    self.diry = -1
-                    self.state = 'walk'
+                    self.diry += -1
                 elif event.key == SDLK_ESCAPE:
                     exit(0)
 
             elif event.type == SDL_KEYUP:
                 if event.key == SDLK_RIGHT:
-                    self.dirx = 0
-                    self.state = 'stop'
+                    self.dirx += -1
                 elif event.key == SDLK_LEFT:
-                    self.dirx = 0
-                    self.state = 'stop'
+                    self.dirx += 1
                 elif event.key == SDLK_UP:
-                    self.diry = 0
-                    self.state = 'stop'
+                    self.diry += -1
                 elif event.key == SDLK_DOWN:
-                    self.diry = 0
-                    self.state = 'stop'
+                    self.diry += 1
+
+        if self.dirx == 0 and self.diry == 0:
+            self.state = 'stop'
+        else:
+            self.state = 'walk'
+
+
 
     def update(self):
         self.x += self.dirx * self.speed
