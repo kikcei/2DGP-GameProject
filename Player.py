@@ -6,7 +6,8 @@ class Player:
         self.image_players_walk = []
 
         self.state = 'stop'
-        self.dir = 0
+        self.dirx = 0
+        self.diry = 0
         self.speed = 5
         self.x, self.y = 400, 300
 
@@ -42,22 +43,44 @@ class Player:
                 exit(0)
             elif event.type == SDL_KEYDOWN:
                 if event.key == SDLK_RIGHT:
-                    self.dir = 1
+                    self.dirx = 1
                     self.state = 'walk'
-                elif event.key == SDL_LEFT:
-                    self.dir = -1
+                elif event.key == SDLK_LEFT:
+                    self.dirx = -1
+                    self.state = 'walk'
+                elif event.key == SDLK_UP:
+                    self.diry = 1
+                    self.state = 'walk'
+                elif event.key  == SDLK_DOWN:
+                    self.diry = -1
                     self.state = 'walk'
                 elif event.key == SDLK_ESCAPE:
                     exit(0)
 
+            elif event.type == SDL_KEYUP:
+                if event.key == SDLK_RIGHT:
+                    self.dirx = 0
+                    self.state = 'stop'
+                elif event.key == SDLK_LEFT:
+                    self.dirx = 0
+                    self.state = 'stop'
+                elif event.key == SDLK_UP:
+                    self.diry = 0
+                    self.state = 'stop'
+                elif event.key == SDLK_DOWN:
+                    self.diry = 0
+                    self.state = 'stop'
+
     def update(self):
-        self.x += self.dir * self.speed
+        self.x += self.dirx * self.speed
+        self.y += self.diry * self.speed
+
         if self.state == 'stop':
             self.frame_players_stop_body = (self.frame_players_stop_body + 1) % 11
             self.frame_players_stop_leg = (self.frame_players_stop_leg + 1) % 1
 
         elif self.state == 'walk':
-            self.frame_players_walk = (self.frame_players_stop_leg + 1) % 11
+            self.frame_players_walk = (self.frame_players_walk + 1) % 10
 
     def draw(self):
         if(self.state == 'stop'):
