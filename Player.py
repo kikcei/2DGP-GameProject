@@ -13,17 +13,17 @@ class Player:
 
 
         for i in range(1, 12):
-            path = f'resources/Players/sprites/DefineSprite_60/{i}.png'
+            path = f'resources/Players/sprites/stop/DefineSprite_60/{i}.png'
             image = load_image(path)
             self.image_players_stop_body.append(image)
 
         for i in range(1, 11):
-            path = f'resources/Players/sprites/DefineSprite_79/{i}.png'
+            path = f'resources/Players/sprites/walk/DefineSprite_79/{i}.png'
             image = load_image(path)
             self.image_players_walk.append(image)
 
-        self.image_players_shadow = load_image('resources/Players/sprites/DefineSprite_45/1.png')
-        self.image_players_stop_leg = load_image('resources/Players/sprites/DefineSprite_124/1.png')
+        self.image_players_shadow = load_image('resources/Players/sprites/shadow/DefineSprite_45/1.png')
+        self.image_players_stop_leg = load_image('resources/Players/sprites/stop/DefineSprite_124/1.png')
 
 
         self.stop_frame_w, self.stop_frame_h = 64, 96  # 프레임 크기
@@ -51,6 +51,10 @@ class Player:
                     self.diry += 1
                 elif event.key  == SDLK_DOWN:
                     self.diry += -1
+                elif event.key == 'a':
+                    state = 'attack_a'
+                elif event.key == 's':
+                    state = 'attack_s'
                 elif event.key == SDLK_ESCAPE:
                     exit(0)
 

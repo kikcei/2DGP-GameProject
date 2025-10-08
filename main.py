@@ -20,7 +20,7 @@ def main():
 
         update_canvas()  # 그린 걸 실제로 화면에 표시
 
-        delay(0.04)
+        delay(0.03)
 
     close_canvas()
 
