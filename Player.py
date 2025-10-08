@@ -4,6 +4,7 @@ class Player:
     def __init__(self):
         self.image_players_stop_body = []
         self.image_players_walk = []
+        self.image_players_attack_a = []
 
         self.state = 'stop'
         self.dirx = 0
@@ -11,16 +12,21 @@ class Player:
         self.speed = 5
         self.x, self.y = 400, 300
 
-
+        # stop
         for i in range(1, 12):
             path = f'resources/Players/sprites/stop/DefineSprite_60/{i}.png'
             image = load_image(path)
             self.image_players_stop_body.append(image)
-
+        # walk
         for i in range(1, 11):
             path = f'resources/Players/sprites/walk/DefineSprite_79/{i}.png'
             image = load_image(path)
             self.image_players_walk.append(image)
+        # attack_a
+        for i in range(1, 9):
+            path = f'resources/Players/sprites/attack_a/DefineSprite_97/{i}.png'
+            image = load_image(path)
+            self.image_players_attack_a.append(image)
 
         self.image_players_shadow = load_image('resources/Players/sprites/shadow/DefineSprite_45/1.png')
         self.image_players_stop_leg = load_image('resources/Players/sprites/stop/DefineSprite_124/1.png')
@@ -32,10 +38,12 @@ class Player:
         self.stop_body_frame = 11
         self.stop_leg_frame = 11
         self.walk_frame = 11
+        self.attack_a_frame = 9
 
         self.frame_players_stop_body = 0
         self.frame_players_stop_leg = 0
         self.frame_players_walk = 0
+        self.frame_players_attack_a = 0
 
     def handle_events(self):
         events = get_events()
@@ -51,10 +59,11 @@ class Player:
                     self.diry += 1
                 elif event.key  == SDLK_DOWN:
                     self.diry += -1
-                elif event.key == 'a':
-                    state = 'attack_a'
-                elif event.key == 's':
-                    state = 'attack_s'
+                elif event.key == SDLK_a:
+                    state = self.state = 'attack_a'
+                    self.frame_players_attack_a = 0
+                elif event.key == SDLK_s:
+                    state = self.state = 'attack_s'
                 elif event.key == SDLK_ESCAPE:
                     exit(0)
 
@@ -68,10 +77,11 @@ class Player:
                 elif event.key == SDLK_DOWN:
                     self.diry += 1
 
-        if self.dirx == 0 and self.diry == 0:
-            self.state = 'stop'
-        else:
-            self.state = 'walk'
+        if self.state != 'attack_a':
+            if self.dirx == 0 and self.diry == 0:
+                self.state = 'stop'
+            else:
+                self.state = 'walk'
 
 
 
@@ -86,6 +96,11 @@ class Player:
         elif self.state == 'walk':
             self.frame_players_walk = (self.frame_players_walk + 1) % 10
 
+        elif self.state == 'attack_a':
+            self.frame_players_attack_a = (self.frame_players_attack_a + 1) % 8
+            if self.frame_players_attack_a == 0:
+                self.state = 'stop'
+
     def draw(self):
         self.image_players_shadow.draw(self.x - 5, self.y - 74)
 
@@ -94,6 +109,8 @@ class Player:
             self.image_players_stop_body[self.frame_players_stop_body].draw(self.x, self.y)
         elif(self.state == 'walk'):
             self.image_players_walk[self.frame_players_walk].draw(self.x, self.y)
+        elif(self.state == 'attack_a'):
+            self.image_players_attack_a[self.frame_players_attack_a].draw(self.x + 22, self.y - 8)
 
 
 
