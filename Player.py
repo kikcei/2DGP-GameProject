@@ -23,6 +23,7 @@ class Player:
             path = f'resources/Players/sprites/walk/DefineSprite_79/{i}.png'
             image = load_image(path)
             self.image_players_walk.append(image)
+        # run
         for i in range(1, 6):
             path = f'resources/Players/sprites/run/DefineSprite_91/{i}.png'
             image = load_image(path)
@@ -36,12 +37,11 @@ class Player:
         self.image_players_shadow = load_image('resources/Players/sprites/shadow/DefineSprite_45/1.png')
         self.image_players_stop_leg = load_image('resources/Players/sprites/stop/DefineSprite_124/1.png')
 
-
-        self.stop_body_frame = 11
-        self.stop_leg_frame = 11
-        self.walk_frame = 11
-        self.run_frame = 6
-        self.attack_a_frame = 9
+        self.player_stop_body_frame_max = 11
+        self.player_stop_leg_frame_max = 11
+        self.player_walk_frame_max = 11
+        self.player_run_frame_max = 6
+        self.player_attack_a_frame_max = 9
 
 
         self.frame_players_stop_body = 0
@@ -122,6 +122,22 @@ class Player:
         elif(self.state == 'attack_a'):
             self.image_players_attack_a[self.frame_players_attack_a].draw(self.x + 22, self.y - 8)
 
+
+class Idle:
+    def __init__(self, player):
+        self.player = player
+
+class Attack:
+    def __init__(self, player):
+        self.player = player
+
+class Walk:
+    def __init__(self, player):
+        self.player = player
+
+class run:
+    def __init__(self, player):
+        self.player = player
 
 
 
