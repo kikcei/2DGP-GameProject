@@ -1,6 +1,32 @@
 from pico2d import *
 from state_machine import StateMachine
 
+def down_a(eve):
+    return eve[0] =='INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_a
+
+def up_a(eve):
+    return eve[0] == 'INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_a
+
+
+def right_down(eve):
+    return eve[0] =='INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_RIGHT
+def right_up(eve):
+    return eve[0] =='INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_RIGHT
+def left_down(eve):
+    return eve[0] =='INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_LEFT
+def left_up(eve):
+    return eve[0] =='INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_LEFT
+
+def up_down(eve):
+    return eve[0] == 'INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_UP
+def up_up(eve):
+    return eve[0] == 'INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_UP
+def down_down(eve):
+    return eve[0] == 'INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_DOWN
+def down_up(eve):
+    return eve[0] == 'INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_DOWN
+
+
 class Player:
     def __init__(self):
         self.image_players_stop_body = []
@@ -56,9 +82,7 @@ class Player:
         self.RUN = Run(self)
         self.ATTACK = Attack(self)
 
-        self.state_machine = StateMachine(
 
-    )
     def handle_events(self):
         events = get_events()
         for event in events:
@@ -136,6 +160,7 @@ class Idle:
     def __init__(self, player):
         self.player = player
 
+
 class Attack:
     def __init__(self, player):
         self.player = player
@@ -144,7 +169,7 @@ class Walk:
     def __init__(self, player):
         self.player = player
 
-class run:
+class  Run:
     def __init__(self, player):
         self.player = player
 
