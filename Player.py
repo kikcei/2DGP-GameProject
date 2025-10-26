@@ -4,6 +4,7 @@ class Player:
     def __init__(self):
         self.image_players_stop_body = []
         self.image_players_walk = []
+        self.image_players_run = []
         self.image_players_attack_a = []
 
         self.state = 'stop'
@@ -22,6 +23,10 @@ class Player:
             path = f'resources/Players/sprites/walk/DefineSprite_79/{i}.png'
             image = load_image(path)
             self.image_players_walk.append(image)
+        for i in range(1, 6):
+            path = f'resources/Players/sprites/run/DefineSprite_91/{i}.png'
+            image = load_image(path)
+            self.image_players_run.append(image)
         # attack_a
         for i in range(1, 9):
             path = f'resources/Players/sprites/attack_a/DefineSprite_97/{i}.png'
@@ -32,17 +37,17 @@ class Player:
         self.image_players_stop_leg = load_image('resources/Players/sprites/stop/DefineSprite_124/1.png')
 
 
-        self.stop_frame_w, self.stop_frame_h = 64, 96  # 프레임 크기
-        self.walk_frame_w, self.walk_frame_h = 64, 96
-
         self.stop_body_frame = 11
         self.stop_leg_frame = 11
         self.walk_frame = 11
+        self.run_frame = 6
         self.attack_a_frame = 9
+
 
         self.frame_players_stop_body = 0
         self.frame_players_stop_leg = 0
         self.frame_players_walk = 0
+        self.frame_players_run = 0
         self.frame_players_attack_a = 0
 
     def handle_events(self):
@@ -96,6 +101,9 @@ class Player:
         elif self.state == 'walk':
             self.frame_players_walk = (self.frame_players_walk + 1) % 10
 
+        elif self.state == 'run':
+            self.frame_players_run = (self.frame_players_run + 1) % 5
+
         elif self.state == 'attack_a':
             self.frame_players_attack_a = (self.frame_players_attack_a + 1) % 8
             if self.frame_players_attack_a == 0:
@@ -109,6 +117,8 @@ class Player:
             self.image_players_stop_body[self.frame_players_stop_body].draw(self.x, self.y)
         elif(self.state == 'walk'):
             self.image_players_walk[self.frame_players_walk].draw(self.x, self.y)
+        elif(self.state == 'run'):
+            self.image_players_run[self.frame_players_run].draw(self.x, self.y)
         elif(self.state == 'attack_a'):
             self.image_players_attack_a[self.frame_players_attack_a].draw(self.x + 22, self.y - 8)
 
