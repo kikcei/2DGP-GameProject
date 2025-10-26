@@ -1,4 +1,5 @@
 from pico2d import *
+from state_machine import StateMachine
 
 class Player:
     def __init__(self):
@@ -50,6 +51,14 @@ class Player:
         self.frame_players_run = 0
         self.frame_players_attack_a = 0
 
+        self.IDLE = Idle(self)
+        self.WALK = Walk(self)
+        self.RUN = Run(self)
+        self.ATTACK = Attack(self)
+
+        self.state_machine = StateMachine(
+
+    )
     def handle_events(self):
         events = get_events()
         for event in events:
