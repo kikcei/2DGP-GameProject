@@ -173,19 +173,66 @@ class Idle:
     def __init__(self, player):
         self.player = player
 
+    def enter(self, event):
+        pass
+
+    def exit(self, event):
+        pass
+
+    def do(self):
+        pass
+
+    def draw(self):
+        pass
+
 
 class Attack:
     def __init__(self, player):
         self.player = player
 
+    def enter(self, event):
+        pass
+
+    def exit(self, event):
+        pass
+
+    def do(self):
+        pass
+
+    def draw(self):
+        pass
+
 class Walk:
     def __init__(self, player):
         self.player = player
+
+    def enter(self, event):
+        pass
+
+    def exit(self, event):
+        pass
+
+    def do(self):
+        pass
+
+    def draw(self):
+        pass
 
 class  Run:
     def __init__(self, player):
         self.player = player
 
+    def enter(self, event):
+        pass
+
+    def exit(self, event):
+        pass
+
+    def do(self):
+        pass
+
+    def draw(self):
+        pass
 
 
 
