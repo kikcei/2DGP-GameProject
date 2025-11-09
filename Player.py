@@ -1,59 +1,151 @@
-
 from pico2d import *
 from state_machine import StateMachine
 
 
-def down_a(eve):
-    return eve[0] == 'INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_a
 
+def down_a(eve):
+    return eve[0] =='INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_a
 
 def up_a(eve):
     return eve[0] == 'INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_a
 
 
 def right_down(eve):
-    return eve[0] == 'INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_RIGHT
-
-
+    return eve[0] =='INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_RIGHT
 def right_up(eve):
-    return eve[0] == 'INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_RIGHT
-
-
+    return eve[0] =='INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_RIGHT
 def left_down(eve):
-    return eve[0] == 'INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_LEFT
-
-
+    return eve[0] =='INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_LEFT
 def left_up(eve):
-    return eve[0] == 'INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_LEFT
-
+    return eve[0] =='INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_LEFT
 
 def up_down(eve):
     return eve[0] == 'INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_UP
-
-
 def up_up(eve):
     return eve[0] == 'INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_UP
-
-
 def down_down(eve):
     return eve[0] == 'INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_DOWN
-
-
 def down_up(eve):
     return eve[0] == 'INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_DOWN
 
 
+class Idle:
+
+    def __init__(self, player):
+        self.player = player
+
+    def enter(self, e):
+        pass
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.player.frame_players_stop_body = (self.player.frame_players_stop_body + 1) % 11
+        self.player.frame_players_stop_leg = (self.player.frame_players_stop_leg + 1) % 11
+
+    def draw(self):
+        self.player.image_players_stop_leg.draw(self.player.x - 3, self.player.y - 56)  # Adjust y position for leg
+        self.player.image_players_stop_body[self.player.frame_players_stop_body].draw(self.player.x, self.player.y)
+
+
+
+class Walk:
+
+    def __init__(self, player):
+        self.keys = {'left': False, 'right': False, 'up': False, 'down': False}
+        self.player = player
+
+
+    def enter(self, e):
+        pass
+
+    def exit(self, e):
+        pass
+
+    def handle_event(self, e):
+        evt = e[1]  # ('INPUT', event)
+        if evt.type == SDL_KEYDOWN:
+            if evt.key == SDLK_LEFT: self.keys['left'] = True
+            if evt.key == SDLK_RIGHT: self.keys['right'] = True
+            if evt.key == SDLK_UP: self.keys['up'] = True
+            if evt.key == SDLK_DOWN: self.keys['down'] = True
+        elif evt.type == SDL_KEYUP:
+            if evt.key == SDLK_LEFT: self.keys['left'] = False
+            if evt.key == SDLK_RIGHT: self.keys['right'] = False
+            if evt.key == SDLK_UP: self.keys['up'] = False
+            if evt.key == SDLK_DOWN: self.keys['down'] = False
+
+    def do(self):
+        self.player.dirx = int(self.keys['right']) - int(self.keys['left'])
+        self.player.diry = int(self.keys['up']) - int(self.keys['down'])
+
+        if self.player.dirx == 0 and self.player.diry == 0:
+            self.player.state_machine.cur_state.exit(None)
+            self.player.state_machine.cur_state = self.player.IDLE
+            self.player.state_machine.cur_state.enter(None)
+            self.keys = {'left': False, 'right': False, 'up': False, 'down': False}
+
+        self.player.frame_players_walk = (self.player.frame_players_walk + 1) % 10
+        self.player.x += self.player.dirx * 5
+        self.player.y += self.player.diry * 5
+
+
+    def draw(self):
+        if self.player.face_dir == 1:  # right
+            self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
+        elif self.player.face_dir == -1:
+            self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
+
+
+class  Run:
+
+    def __init__(self, player):
+        self.player = player
+
+    def enter(self, e):
+        pass
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        pass
+
+    def draw(self):
+        pass
+
+
+class Attack:
+
+    def __init__(self, player):
+        self.player = player
+
+    def enter(self, e):
+        pass
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        pass
+
+    def draw(self):
+        pass
+
+
+
 class Player:
+
     def __init__(self):
         self.image_players_stop_body = []
         self.image_players_walk = []
         self.image_players_run = []
         self.image_players_attack_a = []
-
-        self.state = 'stop'
         self.dirx = 0
         self.diry = 0
-        self.speed = 5
+
+        self.state = 'stop'
+        self.face_dir = 1
         self.x, self.y = 400, 300
 
         # stop
@@ -86,6 +178,7 @@ class Player:
         self.player_run_frame_max = 6
         self.player_attack_a_frame_max = 9
 
+
         self.frame_players_stop_body = 0
         self.frame_players_stop_leg = 0
         self.frame_players_walk = 0
@@ -100,154 +193,26 @@ class Player:
             self.IDLE,
             {
                 self.IDLE: {right_down: self.WALK, left_down: self.WALK, right_up: self.IDLE, left_up: self.IDLE,
-                            up_down: self.WALK, up_up: self.IDLE, down_down: self.WALK, down_up: self.IDLE,
-                            down_a: self.ATTACK},
+                            up_down: self.WALK, up_up: self.IDLE, down_down: self.WALK, down_up: self.IDLE, down_a: self.ATTACK},
 
-                self.WALK: {right_up: self.IDLE, left_up: self.IDLE, right_down: self.WALK, left_down: self.WALK,
-                            up_up: self.IDLE, up_down: self.WALK, down_up: self.IDLE, down_down: self.WALK,
-                            down_a: self.ATTACK},
+                self.WALK: {  right_down: self.WALK, left_down: self.WALK,
+                             up_down: self.WALK,  down_down: self.WALK, down_a: self.ATTACK},
 
-                self.ATTACK: {up_a: self.IDLE, }
+                self.ATTACK: {up_a: self.IDLE,}
             }
         )
 
-    def handle_events(self):
-        events = get_events()
-        for event in events:
-            if event.type == SDL_QUIT:
-                exit(0)
-            elif event.type == SDL_KEYDOWN:
-                if event.key == SDLK_RIGHT:
-                    self.dirx += 1
-                elif event.key == SDLK_LEFT:
-                    self.dirx += -1
-                elif event.key == SDLK_UP:
-                    self.diry += 1
-                elif event.key == SDLK_DOWN:
-                    self.diry += -1
-                elif event.key == SDLK_a:
-                    state = self.state = 'attack_a'
-                    self.frame_players_attack_a = 0
-                elif event.key == SDLK_s:
-                    state = self.state = 'attack_s'
-                elif event.key == SDLK_ESCAPE:
-                    exit(0)
 
-            elif event.type == SDL_KEYUP:
-                if event.key == SDLK_RIGHT:
-                    self.dirx += -1
-                elif event.key == SDLK_LEFT:
-                    self.dirx += 1
-                elif event.key == SDLK_UP:
-                    self.diry += -1
-                elif event.key == SDLK_DOWN:
-                    self.diry += 1
 
-        if self.state != 'attack_a':
-            if self.dirx == 0 and self.diry == 0:
-                self.state = 'stop'
-            else:
-                self.state = 'walk'
+    def handle_event(self,event):
+        self.state_machine.handle_state_event(('INPUT', event))
+
+        if self.state_machine.cur_state == self.WALK:
+            self.WALK.handle_event(('INPUT', event))
 
     def update(self):
-        self.x += self.dirx * self.speed
-        self.y += self.diry * self.speed
-
-        if self.state == 'stop':
-            self.frame_players_stop_body = (self.frame_players_stop_body + 1) % 11
-            self.frame_players_stop_leg = (self.frame_players_stop_leg + 1) % 1
-
-        elif self.state == 'walk':
-            self.frame_players_walk = (self.frame_players_walk + 1) % 10
-
-        elif self.state == 'run':
-            self.frame_players_run = (self.frame_players_run + 1) % 5
-
-        elif self.state == 'attack_a':
-            self.frame_players_attack_a = (self.frame_players_attack_a + 1) % 8
-            if self.frame_players_attack_a == 0:
-                self.state = 'stop'
+        self.state_machine.update()
 
     def draw(self):
         self.image_players_shadow.draw(self.x - 5, self.y - 74)
-
-        if (self.state == 'stop'):
-            self.image_players_stop_leg.draw(self.x - 3, self.y - 56)  # Adjust y position for leg
-            self.image_players_stop_body[self.frame_players_stop_body].draw(self.x, self.y)
-        elif (self.state == 'walk'):
-            self.image_players_walk[self.frame_players_walk].draw(self.x, self.y)
-        elif (self.state == 'run'):
-            self.image_players_run[self.frame_players_run].draw(self.x, self.y)
-        elif (self.state == 'attack_a'):
-            self.image_players_attack_a[self.frame_players_attack_a].draw(self.x + 22, self.y - 8)
-
-
-class Idle:
-    def __init__(self, player):
-        self.player = player
-
-    def enter(self, event):
-        pass
-
-    def exit(self, event):
-        pass
-
-    def do(self):
-        pass
-
-    def draw(self):
-        pass
-
-
-class Attack:
-    def __init__(self, player):
-        self.player = player
-
-    def enter(self, event):
-        pass
-
-    def exit(self, event):
-        pass
-
-    def do(self):
-        pass
-
-    def draw(self):
-        pass
-
-
-class Walk:
-    def __init__(self, player):
-        self.player = player
-
-    def enter(self, event):
-        pass
-
-    def exit(self, event):
-        pass
-
-    def do(self):
-        pass
-
-    def draw(self):
-        pass
-
-
-class Run:
-    def __init__(self, player):
-        self.player = player
-
-    def enter(self, event):
-        pass
-
-    def exit(self, event):
-        pass
-
-    def do(self):
-        pass
-
-    def draw(self):
-        pass
-
-
-
+        self.state_machine.draw()
