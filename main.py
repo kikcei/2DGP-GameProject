@@ -2,27 +2,43 @@ from pico2d import *
 from Maps import *
 from Player import *
 
-WIDTH, HEIGHT = 800,600
+WIDTH, HEIGHT = 800, 600
+
+
+def handle_events(player):  # player를 인자로 받음
+    global running
+
+    event_list = get_events()
+    for event in event_list:
+        if event.type == SDL_QUIT:
+            running = False
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            running = False
+        else:
+            player.handle_event(event)  # 기존 player 객체에 이벤트 전달
+
 
 def main():
     open_canvas(WIDTH, HEIGHT)
 
     map = Maps()
     player = Player()
+    global running
+    running = True
 
-    while True:
-        clear_canvas()  # 이전 프레임 지움
+    while running:
+        clear_canvas()
 
-        map.draw()  # 지도
-        player.handle_events()
-        player.update()  # 플레이어 상태 업데이트
-        player.draw()  # 플레이어 그리기
+        map.draw()
+        player.update()
+        handle_events(player)  # player 전달
+        player.draw()
 
-        update_canvas()  # 그린 걸 실제로 화면에 표시
-
+        update_canvas()
         delay(0.03)
 
     close_canvas()
+
 
 if __name__ == '__main__':
     main()
