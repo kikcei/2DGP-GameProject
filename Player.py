@@ -77,22 +77,34 @@ class Walk:
 
     def do(self):
         self.player.dirx = int(self.keys['right']) - int(self.keys['left'])
+        self.player.face_dir = int(self.keys['right']) - int(self.keys['left'])
         self.player.diry = int(self.keys['up']) - int(self.keys['down'])
 
-        if self.player.dirx == 0 and self.player.diry == 0:
+        # 모든 키가 떨어졌을 때 IDLE 상태로 전환
+        if self.keys['left'] == False and self.keys['right'] == False \
+                and self.keys['up'] == False and self.keys['down'] == False:
             self.player.state_machine.cur_state.exit(None)
             self.player.state_machine.cur_state = self.player.IDLE
             self.player.state_machine.cur_state.enter(None)
             self.keys = {'left': False, 'right': False, 'up': False, 'down': False}
 
-        self.player.frame_players_walk = (self.player.frame_players_walk + 1) % 10
+        if self.player.dirx != 0 or self.player.diry != 0:
+            self.player.frame_players_walk = (self.player.frame_players_walk + 1) % 10
+
+        elif self.player.dirx == 0 and self.player.diry == 0:
+            self.player.frame_players_stop_body = (self.player.frame_players_stop_body + 1) % 11
+            self.player.frame_players_stop_leg = (self.player.frame_players_stop_leg + 1) % 11
+
         self.player.x += self.player.dirx * 5
         self.player.y += self.player.diry * 5
 
 
     def draw(self):
-        if self.player.face_dir == 1:  # right
+        if self.player.face_dir == 1:
             self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
+        elif self.player.face_dir == 0:
+            self.player.image_players_stop_leg.draw(self.player.x - 3, self.player.y - 56)
+            self.player.image_players_stop_body[self.player.frame_players_stop_body].draw(self.player.x, self.player.y)
         elif self.player.face_dir == -1:
             self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
 
