@@ -1,7 +1,9 @@
 from pico2d import *
 from state_machine import StateMachine
 
+import time
 
+DOUBLE_TAP_RUN_TIME = 0.2
 
 def down_a(eve):
     return eve[0] =='INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_a
@@ -113,10 +115,40 @@ class  Run:
         pass
 
     def do(self):
-        pass
+        self.player.dirx = int(self.player.keys['right']) - int(self.player.keys['left'])
+        self.player.diry = int(self.player.keys['up']) - int(self.player.keys['down'])
+        self.player.face_dir = self.player.dirx + self.player.diry
+        # 모든 키가 떨어졌을 때 IDLE 상태로 전환
+        if (not self.player.keys['left'] and not self.player.keys['right']
+                and not self.player.keys['up'] and not self.player.keys['down']):
+            self.player.state_machine.cur_state.exit(None)
+            self.player.state_machine.cur_state = self.player.IDLE
+            self.player.state_machine.cur_state.enter(None)
+
+        # 프레임 갱신
+        if self.player.dirx != 0 or self.player.diry != 0:
+            self.player.frame_players_run = (self.player.frame_players_run + 1) % 5
+        else:
+            self.player.frame_players_stop_body = (self.player.frame_players_stop_body + 1) % 11
+            self.player.frame_players_stop_leg = (self.player.frame_players_stop_leg + 1) % 11
+
+        # 위치 갱신
+        self.player.x += self.player.dirx * 5
+        self.player.y += self.player.diry * 5
 
     def draw(self):
-        pass
+        # 방향에 따라 그리기
+        if self.player.face_dir >= 1:
+            self.player.image_players_run[self.player.frame_players_run].draw(self.player.x, self.player.y)
+        elif self.player.face_dir <= -1:
+            self.player.image_players_run[self.player.frame_players_run].draw(self.player.x, self.player.y)
+        elif self.player.face_dir == 0 and self.player.keys['left'] and self.player.keys['up']:
+            self.player.image_players_run[self.player.frame_players_run].draw(self.player.x, self.player.y)
+        elif self.player.face_dir == 0 and self.player.keys['right'] and self.player.keys['down']:
+            self.player.image_players_run[self.player.frame_players_run].draw(self.player.x, self.player.y)
+        elif self.player.face_dir == 0:
+            self.player.image_players_stop_leg.draw(self.player.x - 3, self.player.y - 56)
+            self.player.image_players_stop_body[self.player.frame_players_stop_body].draw(self.player.x, self.player.y)
 
 
 class Attack:
@@ -157,6 +189,10 @@ class Player:
         self.keys = {'left': False, 'right': False, 'up': False, 'down': False}
         self.face_dir = 1
         self.x, self.y = 400, 300
+
+        self.last_key_time = {'left': 0, 'right': 0, 'up': 0, 'down': 0}
+        self.last_tap_time = 0
+
 
         # stop
         for i in range(1, 12):
@@ -215,16 +251,34 @@ class Player:
 
 
     def handle_event(self,evt):
+        now = time.time()
+
         if evt.type == SDL_KEYDOWN:
             if evt.key == SDLK_LEFT: self.keys['left'] = True
             if evt.key == SDLK_RIGHT: self.keys['right'] = True
             if evt.key == SDLK_UP: self.keys['up'] = True
             if evt.key == SDLK_DOWN: self.keys['down'] = True
+
         elif evt.type == SDL_KEYUP:
             if evt.key == SDLK_LEFT: self.keys['left'] = False
             if evt.key == SDLK_RIGHT: self.keys['right'] = False
             if evt.key == SDLK_UP: self.keys['up'] = False
             if evt.key == SDLK_DOWN: self.keys['down'] = False
+
+        key_map = {SDLK_LEFT: 'left', SDLK_RIGHT: 'right'}
+
+        if evt.type == SDL_KEYDOWN and evt.key in key_map:
+            key = key_map[evt.key]
+            if now - self.last_key_time[key] < DOUBLE_TAP_RUN_TIME:
+                self.state_machine.cur_state.exit(None)
+                self.state_machine.cur_state = self.RUN
+                self.state_machine.cur_state.enter(None)
+            self.last_key_time[key] = now
+            self.keys[key] = True
+
+        elif evt.type == SDL_KEYUP and evt.key in key_map:
+            key = key_map[evt.key]
+            self.keys[key] = False
 
         self.state_machine.handle_state_event(('INPUT', evt))
 
