@@ -1,15 +1,22 @@
 from pico2d import *
 from state_machine import StateMachine
 from resource_load import PlayerResourceLoad
+from combo_attack_state_machine import *
 import time
 
-DOUBLE_TAP_RUN_TIME = 0.2
+DOUBLE_TAP_RUN_TIME = 0.16
 
 def down_a(eve):
     return eve[0] =='INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_a
 
 def up_a(eve):
     return eve[0] == 'INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_a
+
+def down_s(eve):
+    return eve[0] =='INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_s
+
+def up_s(eve):
+    return eve[0] == 'INPUT' and eve[1].type == SDL_KEYUP and eve[1].key == SDLK_s
 
 
 def right_down(eve):
@@ -69,7 +76,6 @@ class Walk:
         # 이동 방향 계산
         self.player.dirx = int(self.player.keys['right']) - int(self.player.keys['left'])
         self.player.diry = int(self.player.keys['up']) - int(self.player.keys['down'])
-        self.player.face_dir = self.player.dirx + self.player.diry
 
         # 모든 키가 떨어졌을 때 IDLE 상태로 전환
         if (not self.player.keys['left'] and not self.player.keys['right']
@@ -94,7 +100,7 @@ class Walk:
         if self.player.face_dir == 1:
             self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
         else:
-            self.player.image_players_walk_left[self.player.frame_players_walk].draw(self.player.x, self.player.y)
+            self.player.image_players_walk_left[self.player.frame_players_walk].draw(self.player.x-5, self.player.y)
 
 
 
@@ -113,7 +119,6 @@ class  Run:
     def do(self):
         self.player.dirx = int(self.player.keys['right']) - int(self.player.keys['left'])
         self.player.diry = int(self.player.keys['up']) - int(self.player.keys['down'])
-        self.player.face_dir = self.player.dirx + self.player.diry
         # 모든 키가 떨어졌을 때 IDLE 상태로 전환
         if (not self.player.keys['left'] and not self.player.keys['right']
                 and not self.player.keys['up'] and not self.player.keys['down']):
@@ -141,30 +146,39 @@ class  Run:
 
 
 class Attack:
-
     def __init__(self, player):
         self.player = player
+        self.attack_state = None  # 서브 state machine
 
     def enter(self, e):
-        pass
+        attack_a_state = Attack_A(self.player)
+        attack_a_a_state = Attack_A_A(self.player)
+        attack_a_s_state = Attack_A_S(self.player)
+
+        attack_rules = {
+            attack_a_state: {down_a: attack_a_a_state, down_s: attack_a_s_state},
+            attack_a_a_state: {},
+            attack_a_s_state: {},
+        }
+
+        self.attack_state = StateMachine(attack_a_state, attack_rules)
+
 
     def exit(self, e):
-        pass
+        self.attack_state = None  # 콤보 종료 시 정리
 
     def do(self):
-        if self.player.frame_players_attack_a == 7:
-            # 공격 애니메이션 끝나면 IDLE로 복귀
-            self.player.state_machine.cur_state.exit(None)
-            self.player.state_machine.cur_state = self.player.IDLE
-            self.player.state_machine.cur_state.enter(None)
+        if self.attack_state:
+            self.attack_state.update()
 
-        self.player.frame_players_attack_a = (self.player.frame_players_attack_a + 1) % 8
+    def handle_event(self, e):
+        if self.attack_state:
+            self.attack_state.handle_state_event(('INPUT', e))
 
     def draw(self):
-        if self.player.face_dir == 1:
-            self.player.image_players_attack_a[self.player.frame_players_attack_a].draw(self.player.x + 22,self.player.y - 8)
-        else:
-            self.player.image_players_attack_a_left[self.player.frame_players_attack_a].draw(self.player.x + 22,self.player.y - 8)
+        if self.attack_state:
+            self.attack_state.draw()
+
 
 
 
@@ -259,12 +273,14 @@ class Player:
         now = time.time()
 
         if evt.type == SDL_KEYDOWN:
-            if evt.key == SDLK_LEFT: self.keys['left'] = True
-            self.face_dir = -1
-            if evt.key == SDLK_RIGHT: self.keys['right'] = True
-            self.face_dir = 1
-            if evt.key == SDLK_UP: self.keys['up'] = True
-            if evt.key == SDLK_DOWN: self.keys['down'] = True
+            if evt.key == SDLK_LEFT:
+                self.keys['left'] = True
+                self.face_dir = -1
+            elif evt.key == SDLK_RIGHT:
+                self.keys['right'] = True
+                self.face_dir = 1
+            elif evt.key == SDLK_UP: self.keys['up'] = True
+            elif evt.key == SDLK_DOWN: self.keys['down'] = True
 
         elif evt.type == SDL_KEYUP:
             if evt.key == SDLK_LEFT: self.keys['left'] = False
