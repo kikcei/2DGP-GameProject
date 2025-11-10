@@ -55,13 +55,14 @@ class Walk:
         self.keys = {'left': False, 'right': False, 'up': False, 'down': False}
         self.player = player
 
-
+        # enter 함수는 해당 상태로 진입했을때 한번만 호출된다.
     def enter(self, e):
         pass
 
     def exit(self, e):
-        pass
+       pass
 
+       #방향키를 갱신할때마다 호출된다.
     def handle_event(self, e):
         evt = e[1]  # ('INPUT', event)
         if evt.type == SDL_KEYDOWN:
@@ -77,7 +78,7 @@ class Walk:
 
     def do(self):
         self.player.dirx = int(self.keys['right']) - int(self.keys['left'])
-        self.player.face_dir = int(self.keys['right']) - int(self.keys['left'])
+        self.player.face_dir = int(self.keys['right']) - int(self.keys['left']) + int(self.keys['up']) - int(self.keys['down'])
         self.player.diry = int(self.keys['up']) - int(self.keys['down'])
 
         # 모든 키가 떨어졌을 때 IDLE 상태로 전환
@@ -100,13 +101,23 @@ class Walk:
 
 
     def draw(self):
-        if self.player.face_dir == 1:
+        if self.player.face_dir >= 1:
             self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
-        elif self.player.face_dir == 0:
+
+        elif self.player.face_dir <= -1:
+            self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
+
+        elif self.player.face_dir == 0 and self.keys['left'] == True and self.keys['up'] == True:
+            self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
+
+        elif self.player.face_dir == 0 and self.keys['right'] == True and self.keys['down'] == True:
+            self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
+
+        elif self.player.face_dir == 0 :
             self.player.image_players_stop_leg.draw(self.player.x - 3, self.player.y - 56)
             self.player.image_players_stop_body[self.player.frame_players_stop_body].draw(self.player.x, self.player.y)
-        elif self.player.face_dir == -1:
-            self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
+
+
 
 
 class  Run:
@@ -139,10 +150,10 @@ class Attack:
         pass
 
     def do(self):
-        pass
+        self.player.frame_players_attack_a = (self.player.frame_players_attack_a + 1) % 8
 
     def draw(self):
-        pass
+        self.player.image_players_attack_a[self.player.frame_players_attack_a].draw(self.player.x + 22, self.player.y - 8)
 
 
 
