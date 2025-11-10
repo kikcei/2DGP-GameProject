@@ -52,68 +52,63 @@ class Idle:
 class Walk:
 
     def __init__(self, player):
-        self.keys = {'left': False, 'right': False, 'up': False, 'down': False}
         self.player = player
 
-        # enter 함수는 해당 상태로 진입했을때 한번만 호출된다.
     def enter(self, e):
         pass
 
     def exit(self, e):
-       pass
+        pass
 
-       #방향키를 갱신할때마다 호출된다.
+    # 방향키 입력 처리
     def handle_event(self, e):
         evt = e[1]  # ('INPUT', event)
         if evt.type == SDL_KEYDOWN:
-            if evt.key == SDLK_LEFT: self.keys['left'] = True
-            if evt.key == SDLK_RIGHT: self.keys['right'] = True
-            if evt.key == SDLK_UP: self.keys['up'] = True
-            if evt.key == SDLK_DOWN: self.keys['down'] = True
+            if evt.key == SDLK_LEFT: self.player.keys['left'] = True
+            if evt.key == SDLK_RIGHT: self.player.keys['right'] = True
+            if evt.key == SDLK_UP: self.player.keys['up'] = True
+            if evt.key == SDLK_DOWN: self.player.keys['down'] = True
         elif evt.type == SDL_KEYUP:
-            if evt.key == SDLK_LEFT: self.keys['left'] = False
-            if evt.key == SDLK_RIGHT: self.keys['right'] = False
-            if evt.key == SDLK_UP: self.keys['up'] = False
-            if evt.key == SDLK_DOWN: self.keys['down'] = False
+            if evt.key == SDLK_LEFT: self.player.keys['left'] = False
+            if evt.key == SDLK_RIGHT: self.player.keys['right'] = False
+            if evt.key == SDLK_UP: self.player.keys['up'] = False
+            if evt.key == SDLK_DOWN: self.player.keys['down'] = False
 
     def do(self):
-        self.player.dirx = int(self.keys['right']) - int(self.keys['left'])
-        self.player.face_dir = int(self.keys['right']) - int(self.keys['left']) + int(self.keys['up']) - int(self.keys['down'])
-        self.player.diry = int(self.keys['up']) - int(self.keys['down'])
+        # 이동 방향 계산
+        self.player.dirx = int(self.player.keys['right']) - int(self.player.keys['left'])
+        self.player.diry = int(self.player.keys['up']) - int(self.player.keys['down'])
+        self.player.face_dir = self.player.dirx + self.player.diry
 
         # 모든 키가 떨어졌을 때 IDLE 상태로 전환
-        if self.keys['left'] == False and self.keys['right'] == False \
-                and self.keys['up'] == False and self.keys['down'] == False:
+        if (not self.player.keys['left'] and not self.player.keys['right']
+                and not self.player.keys['up'] and not self.player.keys['down']):
             self.player.state_machine.cur_state.exit(None)
             self.player.state_machine.cur_state = self.player.IDLE
             self.player.state_machine.cur_state.enter(None)
-            self.keys = {'left': False, 'right': False, 'up': False, 'down': False}
 
+        # 프레임 갱신
         if self.player.dirx != 0 or self.player.diry != 0:
             self.player.frame_players_walk = (self.player.frame_players_walk + 1) % 10
-
-        elif self.player.dirx == 0 and self.player.diry == 0:
+        else:
             self.player.frame_players_stop_body = (self.player.frame_players_stop_body + 1) % 11
             self.player.frame_players_stop_leg = (self.player.frame_players_stop_leg + 1) % 11
 
+        # 위치 갱신
         self.player.x += self.player.dirx * 5
         self.player.y += self.player.diry * 5
 
-
     def draw(self):
+        # 방향에 따라 그리기
         if self.player.face_dir >= 1:
             self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
-
         elif self.player.face_dir <= -1:
             self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
-
-        elif self.player.face_dir == 0 and self.keys['left'] == True and self.keys['up'] == True:
+        elif self.player.face_dir == 0 and self.player.keys['left'] and self.player.keys['up']:
             self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
-
-        elif self.player.face_dir == 0 and self.keys['right'] == True and self.keys['down'] == True:
+        elif self.player.face_dir == 0 and self.player.keys['right'] and self.player.keys['down']:
             self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
-
-        elif self.player.face_dir == 0 :
+        elif self.player.face_dir == 0:
             self.player.image_players_stop_leg.draw(self.player.x - 3, self.player.y - 56)
             self.player.image_players_stop_body[self.player.frame_players_stop_body].draw(self.player.x, self.player.y)
 
@@ -167,7 +162,7 @@ class Player:
         self.dirx = 0
         self.diry = 0
 
-        self.state = 'stop'
+        self.keys = {'left': False, 'right': False, 'up': False, 'down': False}
         self.face_dir = 1
         self.x, self.y = 400, 300
 
