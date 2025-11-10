@@ -1,6 +1,7 @@
 from pico2d import *
 from Maps import *
 from Player import *
+from resource_load import PlayerResourceLoad
 
 WIDTH, HEIGHT = 800, 600
 
@@ -21,8 +22,10 @@ def handle_events(player):  # player를 인자로 받음
 def main():
     open_canvas(WIDTH, HEIGHT)
 
+    resource_load = PlayerResourceLoad()
+    resource_load.load()
     map = Maps()
-    player = Player()
+    player = Player(resource_load)
     global running
     running = True
 
