@@ -60,20 +60,6 @@ class Walk:
     def exit(self, e):
         pass
 
-    # 방향키 입력 처리
-    def handle_event(self, e):
-        evt = e[1]  # ('INPUT', event)
-        if evt.type == SDL_KEYDOWN:
-            if evt.key == SDLK_LEFT: self.player.keys['left'] = True
-            if evt.key == SDLK_RIGHT: self.player.keys['right'] = True
-            if evt.key == SDLK_UP: self.player.keys['up'] = True
-            if evt.key == SDLK_DOWN: self.player.keys['down'] = True
-        elif evt.type == SDL_KEYUP:
-            if evt.key == SDLK_LEFT: self.player.keys['left'] = False
-            if evt.key == SDLK_RIGHT: self.player.keys['right'] = False
-            if evt.key == SDLK_UP: self.player.keys['up'] = False
-            if evt.key == SDLK_DOWN: self.player.keys['down'] = False
-
     def do(self):
         # 이동 방향 계산
         self.player.dirx = int(self.player.keys['right']) - int(self.player.keys['left'])
@@ -145,6 +131,12 @@ class Attack:
         pass
 
     def do(self):
+        if self.player.frame_players_attack_a == 7:
+            # 공격 애니메이션 끝나면 IDLE로 복귀
+            self.player.state_machine.cur_state.exit(None)
+            self.player.state_machine.cur_state = self.player.IDLE
+            self.player.state_machine.cur_state.enter(None)
+
         self.player.frame_players_attack_a = (self.player.frame_players_attack_a + 1) % 8
 
     def draw(self):
@@ -216,17 +208,29 @@ class Player:
                 self.WALK: {  right_down: self.WALK, left_down: self.WALK,
                              up_down: self.WALK,  down_down: self.WALK, down_a: self.ATTACK},
 
-                self.ATTACK: {up_a: self.IDLE,}
+                self.ATTACK: {}
             }
         )
 
 
 
-    def handle_event(self,event):
-        self.state_machine.handle_state_event(('INPUT', event))
+    def handle_event(self,evt):
+        if evt.type == SDL_KEYDOWN:
+            if evt.key == SDLK_LEFT: self.keys['left'] = True
+            if evt.key == SDLK_RIGHT: self.keys['right'] = True
+            if evt.key == SDLK_UP: self.keys['up'] = True
+            if evt.key == SDLK_DOWN: self.keys['down'] = True
+        elif evt.type == SDL_KEYUP:
+            if evt.key == SDLK_LEFT: self.keys['left'] = False
+            if evt.key == SDLK_RIGHT: self.keys['right'] = False
+            if evt.key == SDLK_UP: self.keys['up'] = False
+            if evt.key == SDLK_DOWN: self.keys['down'] = False
 
-        if self.state_machine.cur_state == self.WALK:
-            self.WALK.handle_event(('INPUT', event))
+        self.state_machine.handle_state_event(('INPUT', evt))
+
+
+
+
 
     def update(self):
         self.state_machine.update()
