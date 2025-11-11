@@ -1,7 +1,6 @@
 from pico2d import *
 from state_machine import StateMachine
 from resource_load import PlayerResourceLoad
-from combo_attack_state_machine import *
 import time
 
 DOUBLE_TAP_RUN_TIME = 0.16
@@ -102,9 +101,6 @@ class Walk:
         else:
             self.player.image_players_walk_left[self.player.frame_players_walk].draw(self.player.x-5, self.player.y)
 
-
-
-
 class  Run:
 
     def __init__(self, player):
@@ -144,42 +140,91 @@ class  Run:
         else:
             self.player.image_players_run_left[self.player.frame_players_run].draw(self.player.x, self.player.y - 10)
 
-
-class Attack:
+class Run_Attack_A:
     def __init__(self, player):
         self.player = player
-        self.attack_state = None
-
-        self.attack_a_state = Attack_A(player)
-        self.attack_a_a_state = Attack_A_A(player)
-        self.attack_a_s_state = Attack_A_S(player)
-
-        self.attack_rules = {
-            self.attack_a_state: {down_a: self.attack_a_a_state, down_s: self.attack_a_s_state},
-            self.attack_a_a_state: {},
-            self.attack_a_s_state: {},
-        }
+        self.input_queue = []  # 입력 큐
 
     def enter(self, e):
-        if self.attack_state is None:
-            self.attack_state = StateMachine(self.attack_a_state, self.attack_rules)
-        else:
-            self.attack_state.set_state(self.attack_a_state)
+        self.player.frame_players_run_attack_a = 0
+        self.input_queue.clear()
 
     def exit(self, e):
-        self.attack_state = None  # 콤보 종료 시 정리
+        self.input_queue.clear()
 
     def do(self):
-        if self.attack_state:
-            self.attack_state.update()
+
+        self.player.frame_players_run_attack_a += 1
+        if self.player.frame_players_run_attack_a <= 15:
+            if self.player.face_dir == 1:
+                self.player.x += 7
+            else:
+                self.player.x -= 7
+
+        if self.player.frame_players_run_attack_a >= 22:
+            next_state = self.player.IDLE
+
+            # 상태 전환
+            self.player.state_machine.cur_state.exit(None)
+            self.player.state_machine.cur_state = next_state
+            self.player.state_machine.cur_state.enter(None)
 
     def handle_event(self, e):
-        if self.attack_state:
-            self.attack_state.handle_state_event(('INPUT', e))
+        if e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN:
+            key = e[1].key
+            if key in (SDLK_a, SDLK_s):
+                self.input_queue.append(key)
 
     def draw(self):
-        if self.attack_state:
-            self.attack_state.draw()
+        if self.player.face_dir == 1:
+            self.player.image_players_run_attack_a[self.player.frame_players_run_attack_a].draw(self.player.x ,
+                                                                                        self.player.y - 8)
+        else:
+            self.player.image_players_run_attack_a_left[self.player.frame_players_run_attack_a].draw(self.player.x - 7,
+                                                                                             self.player.y - 8)
+
+class Run_Attack_S:
+    def __init__(self, player):
+        self.player = player
+        self.input_queue = []  # 입력 큐
+
+    def enter(self, e):
+        self.player.frame_players_run_attack_s = 0
+        self.input_queue.clear()
+
+    def exit(self, e):
+        self.input_queue.clear()
+
+    def do(self):
+
+        self.player.frame_players_run_attack_s += 1
+        if self.player.face_dir == 1:
+            self.player.x += 7
+        else:
+            self.player.x -= 7
+
+        if self.player.frame_players_run_attack_s >= 14:
+            next_state = self.player.IDLE
+
+            # 상태 전환
+            self.player.state_machine.cur_state.exit(None)
+            self.player.state_machine.cur_state = next_state
+            self.player.state_machine.cur_state.enter(None)
+
+    def handle_event(self, e):
+        if e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN:
+            key = e[1].key
+            if key in (SDLK_a, SDLK_s):
+                self.input_queue.append(key)
+
+    def draw(self):
+        if self.player.face_dir == 1:
+            self.player.image_players_run_attack_s[self.player.frame_players_run_attack_s].draw(self.player.x + 14,
+                                                                                                self.player.y - 13)
+        else:
+            self.player.image_players_run_attack_s_left[self.player.frame_players_run_attack_s].draw(self.player.x - 21,
+                                                                                                     self.player.y - 13)
+
 
 class Attack_A:
     def __init__(self, player):
@@ -189,28 +234,23 @@ class Attack_A:
     def enter(self, e):
         self.player.frame_players_attack_a = 0
         self.input_queue.clear()
-        self.image = (
-            self.player.image_players_attack_a
-            if self.player.face_dir == 1
-            else self.player.image_players_attack_a_left
-        )
 
     def exit(self, e):
         self.input_queue.clear()
 
     def do(self):
+
         self.player.frame_players_attack_a += 1
 
         if self.player.frame_players_attack_a >= 7:
-            self.player.frame_players_attack_a = 7
             next_state = self.player.IDLE
 
             if self.input_queue:
                 key = self.input_queue.pop(0)
                 if key == SDLK_a:
-                    next_state = Attack_A_A(self.player)
+                    next_state = self.player.ATTACK_A_A
                 elif key == SDLK_s:
-                    next_state = Attack_A_S(self.player)
+                    next_state = self.player.ATTACK_A_S
 
             # 상태 전환
             self.player.state_machine.cur_state.exit(None)
@@ -237,25 +277,20 @@ class Attack_A_A:
     def enter(self, e):
         self.player.frame_players_attack_a_a = 0
         self.input_queue.clear()
-        self.image = (
-            self.player.image_players_attack_a_a
-            if self.player.face_dir == 1
-            else self.player.image_players_attack_a_a_left
-        )
+
+    def exit(self, e):
+        self.input_queue.clear()
 
     def do(self):
         self.player.frame_players_attack_a_a += 1
 
-        if self.player.frame_players_attack_a_a >= 11:
-            self.player.frame_players_attack_a_a = 11
+        if self.player.frame_players_attack_a_a >= 9:
+            self.player.frame_players_attack_a_a = 9
             next_state = self.player.IDLE
 
             if self.input_queue:
                 key = self.input_queue.pop(0)
-                if key == SDLK_a:
-                    next_state = Attack_A_A(self.player)
-                elif key == SDLK_s:
-                    next_state = Attack_A_S(self.player)
+
 
             self.player.state_machine.cur_state.exit(None)
             self.player.state_machine.cur_state = next_state
@@ -269,77 +304,166 @@ class Attack_A_A:
 
     def draw(self):
         if self.player.face_dir == 1:
-            self.player.image_players_attack_a_a[self.player.frame_players_attack_a_a].draw(self.player.x + 22, self.player.y - 8)
+            self.player.image_players_attack_a_a[self.player.frame_players_attack_a_a].draw(self.player.x + 22, self.player.y - 9)
         else:
-            self.player.image_players_attack_a_a_left[self.player.frame_players_attack_a_a].draw(self.player.x - 29, self.player.y - 8)
+            self.player.image_players_attack_a_a_left[self.player.frame_players_attack_a_a].draw(self.player.x - 29, self.player.y - 9)
 
 class Attack_A_S:
     def __init__(self, player):
         self.player = player
+        self.input_queue = []
 
-    def enter(self, player, e):
-        pass
+    def enter(self, e):
+        self.player.frame_players_attack_a_s = 0
+        self.input_queue.clear()
 
     def exit(self, e):
-        pass
+        self.input_queue.clear()
 
-    def do(self, player):
-        pass
+    def do(self):
+        self.player.frame_players_attack_a_s += 1
 
-    def handle_event(self, player, e):
-        pass
+        if self.player.frame_players_attack_a_s >= 13:
+            self.player.frame_players_attack_a_s = 13
+            next_state = self.player.IDLE
 
-    def draw(self, player):
-       pass
+            if self.input_queue:
+                key = self.input_queue.pop(0)
+                if key == SDLK_a:
+                    next_state = Attack_A_S_A(self.player)
+
+
+            self.player.state_machine.cur_state.exit(None)
+            self.player.state_machine.cur_state = next_state
+            self.player.state_machine.cur_state.enter(None)
+
+    def handle_event(self, e):
+        if e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN:
+            key = e[1].key
+            if key in (SDLK_a, SDLK_s):
+                self.input_queue.append(key)
+
+    def draw(self):
+        if self.player.face_dir == 1:
+            self.player.image_players_attack_a_s[self.player.frame_players_attack_a_s].draw(self.player.x + 35,self.player.y - 3)
+
+        else:
+            self.player.image_players_attack_a_s_left[self.player.frame_players_attack_a_s].draw(self.player.x - 43, self.player.y - 3)
 
 class Attack_A_S_A:
-    def enter(self, player, e):
-        pass
+    def __init__(self, player):
+        self.player = player
+        self.input_queue = []
+
+    def enter(self, e):
+        self.player.frame_players_attack_a_s_a = 0
+        self.input_queue.clear()
 
     def exit(self, e):
-        pass
+        self.input_queue.clear()
 
-    def do(self, player):
-        pass
+    def do(self):
+        self.player.frame_players_attack_a_s_a += 1
 
-    def handle_event(self, player, e):
-        pass
+        if self.player.frame_players_attack_a_s_a >= 18:
+            self.player.frame_players_attack_a_s_a = 18
 
-    def draw(self, player):
-       pass
+            next_state = self.player.IDLE
+            self.player.state_machine.cur_state.exit(None)
+            self.player.state_machine.cur_state = next_state
+            self.player.state_machine.cur_state.enter(None)
+
+    def handle_event(self, e):
+        if e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN:
+            key = e[1].key
+            if key in (SDLK_a, SDLK_s):
+                self.input_queue.append(key)
+
+    def draw(self):
+        if self.player.face_dir == 1:
+            self.player.image_players_attack_a_s_a[self.player.frame_players_attack_a_s_a].draw(self.player.x + 15,
+                                                                                                self.player.y + 24)
+        else:
+            self.player.image_players_attack_a_s_a_left[self.player.frame_players_attack_a_s_a].draw(self.player.x - 20,
+                                                                                                     self.player.y + 25)
 
 class Attack_S:
-    def enter(self, player, e):
-        pass
+    def __init__(self, player):
+        self.player = player
+        self.input_queue = []
+
+    def enter(self, e):
+        self.player.frame_players_attack_s = 0
+        self.input_queue.clear()
 
     def exit(self, e):
-        pass
+        self.input_queue.clear()
 
-    def do(self, player):
-        pass
+    def do(self):
+        self.player.frame_players_attack_s += 1
 
-    def handle_event(self, player, e):
-        pass
+        if self.player.frame_players_attack_s >= 13:
+            self.player.frame_players_attack_s = 13
 
-    def draw(self, player):
-       pass
+            next_state = self.player.IDLE
+            if self.input_queue:
+                key = self.input_queue.pop(0)
+                if key == SDLK_s:
+                    next_state = Attack_S_S(self.player)
+
+            self.player.state_machine.cur_state.exit(None)
+            self.player.state_machine.cur_state = next_state
+            self.player.state_machine.cur_state.enter(None)
+
+    def handle_event(self, e):
+        if e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN:
+            key = e[1].key
+            if key in (SDLK_a, SDLK_s):
+                self.input_queue.append(key)
+
+    def draw(self):
+        if self.player.face_dir == 1:
+            self.player.image_players_attack_s[self.player.frame_players_attack_s].draw(self.player.x + 15,self.player.y - 12 )
+        else:
+            self.player.image_players_attack_s_left[self.player.frame_players_attack_s].draw(self.player.x - 20, self.player.y - 12 )
 
 class Attack_S_S:
-    def enter(self, player, e):
-        pass
+    def __init__(self, player):
+        self.player = player
+        self.input_queue = []
+
+    def enter(self, e):
+        self.player.frame_players_attack_s_s = 0
+        self.input_queue.clear()
 
     def exit(self, e):
-        pass
+        self.input_queue.clear()
 
-    def do(self, player):
-        pass
+    def do(self):
+        self.player.frame_players_attack_s_s += 1
 
-    def handle_event(self, player, e):
-        pass
+        if self.player.frame_players_attack_s_s >= 14:
+            self.player.frame_players_attack_s_s = 14
 
-    def draw(self, player):
-       pass
+            next_state = self.player.IDLE
 
+            self.player.state_machine.cur_state.exit(None)
+            self.player.state_machine.cur_state = next_state
+            self.player.state_machine.cur_state.enter(None)
+
+    def handle_event(self, e):
+        if e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN:
+            key = e[1].key
+            if key in (SDLK_a, SDLK_s):
+                self.input_queue.append(key)
+
+    def draw(self):
+        if self.player.face_dir == 1:
+            self.player.image_players_attack_s_s[self.player.frame_players_attack_s_s].draw(self.player.x + 15,
+                                                                                        self.player.y - 12)
+        else:
+            self.player.image_players_attack_s_s_left[self.player.frame_players_attack_s_s].draw(self.player.x - 20,
+                                                                                             self.player.y - 12)
 
 
 class Player:
@@ -360,6 +484,14 @@ class Player:
         # 달리기
         self.image_players_run = resource_loader.get('run')
         self.image_players_run_left = resource_loader.get('run_left')
+
+        # 달리기 공격 (A)
+        self.image_players_run_attack_a = resource_loader.get('run_attack_a')
+        self.image_players_run_attack_a_left = resource_loader.get('run_attack_a_left')
+
+        # 달리기 공격 (S)
+        self.image_players_run_attack_s = resource_loader.get('run_attack_s')
+        self.image_players_run_attack_s_left = resource_loader.get('run_attack_s_left')
 
         # 공격 (A)
         self.image_players_attack_a = resource_loader.get('attack_a')
@@ -389,6 +521,8 @@ class Player:
         self.frame_players_stop_leg = 0
         self.frame_players_walk = 0
         self.frame_players_run = 0
+        self.frame_players_run_attack_a = 0
+        self.frame_players_run_attack_s = 0
         self.frame_players_attack_a = 0
         self.frame_players_attack_a_a = 0
         self.frame_players_attack_a_s = 0
@@ -411,19 +545,31 @@ class Player:
         self.IDLE = Idle(self)
         self.WALK = Walk(self)
         self.RUN = Run(self)
-        self.ATTACK = Attack(self)
+        self.RUN_ATTACK_A = Run_Attack_A(self)
+        self.RUN_ATTACK_S = Run_Attack_S(self)
+        self.ATTACK_A = Attack_A(self)
+        self.ATTACK_A_A = Attack_A_A(self)
+        self.ATTACK_A_S = Attack_A_S(self)
+        self.ATTACK_A_S_A = Attack_A_S_A(self)
+        self.ATTACK_S = Attack_S(self)
+        self.ATTACK_S_S = Attack_S_S(self)
         self.state_machine = StateMachine(
             self.IDLE,
             {
                 self.IDLE: {right_down: self.WALK, left_down: self.WALK, right_up: self.IDLE, left_up: self.IDLE,
-                            up_down: self.WALK, up_up: self.IDLE, down_down: self.WALK, down_up: self.IDLE, down_a: self.ATTACK},
+                            up_down: self.WALK, up_up: self.IDLE, down_down: self.WALK, down_up: self.IDLE, down_a: self.ATTACK_A,down_s: self.ATTACK_S},
 
                 self.WALK: {  right_down: self.WALK, left_down: self.WALK,
-                             up_down: self.WALK,  down_down: self.WALK, down_a: self.ATTACK},
-
-                self.ATTACK: {},
-
-                self.RUN: {down_a: self.ATTACK}
+                             up_down: self.WALK,  down_down: self.WALK, down_a: self.ATTACK_A,down_s: self.ATTACK_S},
+                self.RUN_ATTACK_A: {},
+                self.RUN_ATTACK_S: {},
+                self.ATTACK_A: {},
+                self.ATTACK_A_A: {},
+                self.ATTACK_A_S: {},
+                self.ATTACK_A_S_A: {},
+                self.ATTACK_S: {},
+                self.ATTACK_S_S: {},
+                self.RUN: {down_a: self.RUN_ATTACK_A,down_s: self.RUN_ATTACK_S}
             }
         )
 
@@ -463,9 +609,11 @@ class Player:
             key = key_map[evt.key]
             self.keys[key] = False
 
-        self.state_machine.handle_state_event(('INPUT', evt))
-        if isinstance(self.state_machine.cur_state, Attack):
-            self.state_machine.cur_state.handle_event(evt)
+        # 공격상태에서 키 입력을 받을 수 있게 변경
+        if isinstance(self.state_machine.cur_state, (Attack_A, Attack_A_A, Attack_A_S, Attack_A_S_A,Attack_S, Attack_S_S)):
+            self.state_machine.cur_state.handle_event(('INPUT', evt))
+        else:
+            self.state_machine.handle_state_event(('INPUT', evt))
 
 
 
