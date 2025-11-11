@@ -148,22 +148,23 @@ class  Run:
 class Attack:
     def __init__(self, player):
         self.player = player
-        self.attack_state = None  # 서브 state machine
+        self.attack_state = None
 
-    def enter(self, e):
-        # 인스턴스화 한 뒤 상태머신에 등록
-        attack_a_state = Attack_A(self.player)
-        attack_a_a_state = Attack_A_A(self.player)
-        attack_a_s_state = Attack_A_S(self.player)
+        self.attack_a_state = Attack_A(player)
+        self.attack_a_a_state = Attack_A_A(player)
+        self.attack_a_s_state = Attack_A_S(player)
 
-        attack_rules = {
-            attack_a_state: {down_a: attack_a_a_state, down_s: attack_a_s_state},
-            attack_a_a_state: {},
-            attack_a_s_state: {},
+        self.attack_rules = {
+            self.attack_a_state: {down_a: self.attack_a_a_state, down_s: self.attack_a_s_state},
+            self.attack_a_a_state: {},
+            self.attack_a_s_state: {},
         }
 
-        self.attack_state = StateMachine(attack_a_state, attack_rules)
-
+    def enter(self, e):
+        if self.attack_state is None:
+            self.attack_state = StateMachine(self.attack_a_state, self.attack_rules)
+        else:
+            self.attack_state.set_state(self.attack_a_state)
 
     def exit(self, e):
         self.attack_state = None  # 콤보 종료 시 정리
@@ -305,6 +306,8 @@ class Player:
             self.keys[key] = False
 
         self.state_machine.handle_state_event(('INPUT', evt))
+        if isinstance(self.state_machine.cur_state, Attack):
+            self.state_machine.cur_state.handle_event(evt)
 
 
 
