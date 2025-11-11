@@ -38,6 +38,9 @@ class PlayerResourceLoad:
             'basic_monster': self.load_sequence('resources/Monster/Basic_monster/Walk/sprites/DefineSprite_707', 8),
             'basic_monster_left': self.load_sequence('resources/Monster/Basic_monster/Walk/sprites/DefineSprite_707_left',8),
 
+
+            'special_monster1_stop': self.load_sequence('resources/Monster/Special_Monster/Monster1/Idle/sprites/DefineSprite_625', 1),
+            'special_monster1_stop_left': self.load_sequence('resources/Monster/Special_Monster/Monster1/Idle/sprites/DefineSprite_625_left', 1),
             'special_monster1_walk': self.load_sequence('resources/Monster/Special_Monster/Monster1/Walk/sprites/DefineSprite_637', 8),
             'special_monster1_walk_left': self.load_sequence('resources/Monster/Special_Monster/Monster1/Walk/sprites/DefineSprite_637_left', 8),
             'special_monster1_attack1': self.load_sequence('resources/Monster/Special_Monster/Monster1/Attack/Attack_1/sprites/DefineSprite_672', 14),
