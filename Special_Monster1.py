@@ -1,7 +1,6 @@
 from resource_load import PlayerResourceLoad
 from state_machine import StateMachine
 import math
-from Player import Player
 import random
 
 
@@ -20,15 +19,22 @@ class Idle:
 
     def do(self):
 
+
         self.special_monster1.frame_special_monster1_walk = (self.special_monster1.frame_special_monster1_walk + 1)%8
         # --- 플레이어 방향으로 이동하는 로직 ---
+
         dx = self.player.x - self.special_monster1.x
         dy = self.player.y - self.special_monster1.y
         rad = math.atan2(dy, dx)  # 각도 계산
 
+        distance = math.sqrt(dx * dx + dy * dy)
+
         speed = 2  # 이동 속도 (원하면 special_monster1.speed 로 대체 가능)
-        self.special_monster1.x += math.cos(rad) * speed
-        self.special_monster1.y += math.sin(rad) * speed
+        if abs(dx) >= 100:
+            self.special_monster1.x += math.cos(rad) * speed
+        elif abs(dx) < 95:
+            self.special_monster1.x -= math.cos(rad) * speed
+        self.special_monster1.y += math.sin(rad) * 3
 
         # --- 방향 결정 ---
         if self.player.x <= self.special_monster1.x:
@@ -36,8 +42,18 @@ class Idle:
         else:
             self.special_monster1.face_dir = 1
 
-        # --- 플레이어와의 거리 확인 (예: 일정 거리 이상이면 다른 상태로 전이) ---
-        distance = math.sqrt(dx * dx + dy * dy)
+        if  abs(dy) <20 and abs(dx) <= 100:
+            num=random.choice([1,2,3])
+            next_state = self.special_monster1.IDLE
+            if num == 1:
+                next_state = self.special_monster1.ATTACK1
+            elif num == 2:
+                next_state = self.special_monster1.ATTACK2
+            elif num == 3:
+                next_state = self.special_monster1.ATTACK3
+            self.special_monster1.state_machine.cur_state.exit(None)
+            self.special_monster1.state_machine.cur_state = next_state
+            self.special_monster1.state_machine.cur_state.enter(None)
 
 
     def draw(self):
@@ -53,58 +69,85 @@ class Attack1:
 
 
     def enter(self,e):
-        pass
+        self.special_monster1.frame_special_monster1_attack1 = 0
 
 
     def exit(self,e):
         pass
 
     def do(self):
-       pass
+        self.special_monster1.frame_special_monster1_attack1 = self.special_monster1.frame_special_monster1_attack1 + 1
+
+        if self.special_monster1.frame_special_monster1_attack1 >=13:
+            self.special_monster1.state_machine.cur_state.exit(None)
+            self.special_monster1.state_machine.cur_state = self.special_monster1.IDLE
+            self.special_monster1.state_machine.cur_state.enter(None)
 
 
     def draw(self):
-        pass
+        if self.special_monster1.face_dir == 1:
+            self.special_monster1.image_special_monster1_attack1[self.special_monster1.frame_special_monster1_attack1].draw(self.special_monster1.x + 4, self.special_monster1.y - 9)
+        else:
+            self.special_monster1.image_special_monster1_attack1_left[self.special_monster1.frame_special_monster1_attack1].draw(self.special_monster1.x - 6,self.special_monster1.y - 9)
 
 
 class Attack2:
     def __init__(self, special_monster1):
         self.special_monster1 = special_monster1
 
+    def enter(self, e):
+        self.special_monster1.frame_special_monster1_attack2 = 0
 
-    def enter(self,e):
-        pass
-
-
-    def exit(self,e):
+    def exit(self, e):
         pass
 
     def do(self):
-       pass
+        self.special_monster1.frame_special_monster1_attack2 = self.special_monster1.frame_special_monster1_attack2 + 1
 
+        if self.special_monster1.frame_special_monster1_attack2 >= 12:
+            self.special_monster1.state_machine.cur_state.exit(None)
+            self.special_monster1.state_machine.cur_state = self.special_monster1.IDLE
+            self.special_monster1.state_machine.cur_state.enter(None)
 
     def draw(self):
-        pass
+        if self.special_monster1.face_dir == 1:
+            self.special_monster1.image_special_monster1_attack2[
+                self.special_monster1.frame_special_monster1_attack2].draw(self.special_monster1.x-2,
+                                                                           self.special_monster1.y +13)
+        else:
+            self.special_monster1.image_special_monster1_attack2_left[
+                self.special_monster1.frame_special_monster1_attack2].draw(self.special_monster1.x - 4,
+                                                                           self.special_monster1.y +13)
 
 
 class Attack3:
     def __init__(self, special_monster1):
         self.special_monster1 = special_monster1
 
+    def enter(self, e):
+        self.special_monster1.frame_special_monster1_attack3 = 0
 
-    def enter(self,e):
-        pass
-
-
-    def exit(self,e):
+    def exit(self, e):
         pass
 
     def do(self):
-       pass
+        self.special_monster1.frame_special_monster1_attack3 = self.special_monster1.frame_special_monster1_attack3 + 1
 
+
+        if self.special_monster1.frame_special_monster1_attack3 >= 13:
+            self.special_monster1.state_machine.cur_state.exit(None)
+            self.special_monster1.state_machine.cur_state = self.special_monster1.IDLE
+            self.special_monster1.state_machine.cur_state.enter(None)
 
     def draw(self):
-        pass
+        if self.special_monster1.face_dir == 1:
+            self.special_monster1.image_special_monster1_attack3[
+                self.special_monster1.frame_special_monster1_attack3].draw(self.special_monster1.x+13,
+                                                                           self.special_monster1.y - 11)
+        else:
+            self.special_monster1.image_special_monster1_attack3_left[
+                self.special_monster1.frame_special_monster1_attack3].draw(self.special_monster1.x - 19,
+                                                                           self.special_monster1.y - 11)
 
 
 class Special_Monster1:

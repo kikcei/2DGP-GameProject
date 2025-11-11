@@ -46,7 +46,7 @@ class PlayerResourceLoad:
             'special_monster1_attack1': self.load_sequence('resources/Monster/Special_Monster/Monster1/Attack/Attack_1/sprites/DefineSprite_672', 14),
             'special_monster1_attack1_left': self.load_sequence('resources/Monster/Special_Monster/Monster1/Attack/Attack_1/sprites/DefineSprite_672_left', 14),
             'special_monster1_attack2': self.load_sequence('resources/Monster/Special_Monster/Monster1/Attack/Attack_2/sprites/DefineSprite_679', 13),
-            'special_monster1_attack2_left': self.load_sequence('resources/Monster/Special_Monster/Monster1/Attack/Attack_2/sprites/DefineSprite_679', 13),
+            'special_monster1_attack2_left': self.load_sequence('resources/Monster/Special_Monster/Monster1/Attack/Attack_2/sprites/DefineSprite_679_left', 13),
             'special_monster1_attack3':self.load_sequence('resources/Monster/Special_Monster/Monster1/Attack/Attack_3/sprites/DefineSprite_687', 14),
             'special_monster1_attack3_left':self.load_sequence('resources/Monster/Special_Monster/Monster1/Attack/Attack_3/sprites/DefineSprite_687_left', 14),
 
