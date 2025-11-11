@@ -151,6 +151,7 @@ class Attack:
         self.attack_state = None  # 서브 state machine
 
     def enter(self, e):
+        # 인스턴스화 한 뒤 상태머신에 등록
         attack_a_state = Attack_A(self.player)
         attack_a_a_state = Attack_A_A(self.player)
         attack_a_s_state = Attack_A_S(self.player)
