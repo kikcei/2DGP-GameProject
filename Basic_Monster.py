@@ -3,27 +3,28 @@ from state_machine import StateMachine
 import random
 
 
-
-
-
-
 class Idle:
     def __init__(self, basic_monster):
         self.basic_monster = basic_monster
-        self.min_x = 0
-        self.min_y = 0
-        self.max_x = 800
-        self.max_y = 600
+        self.min_x = 40
+        self.min_y = 40
+        self.max_x = 760
+        self.max_y = 560
 
-    def enter(self):
+    def enter(self,e):
         self.basic_monster.face_dir = random.choice([-1, 1])
+        if self.basic_monster.face_dir == 1:
+            self.basic_monster.dirx = 1
+        else:
+            self.basic_monster.dirx = -1
 
 
-    def exit(self):
+    def exit(self,e):
         pass
 
     def do(self):
-        speed = 5
+        speed = 3
+        self.basic_monster.frame_basic_monster_walk=(self.basic_monster.frame_basic_monster_walk + 1) % 8
 
         if self.basic_monster.x <= self.min_x:  # 왼쪽 벽
             self.basic_monster.x = self.min_x
@@ -47,16 +48,9 @@ class Idle:
 
     def draw(self):
         if self.basic_monster.face_dir == 1:
-            self.basic_monster.image_basic_monster_walk.draw[self.basic_monster.frame_basic_monster_walk].draw(self.basic_monster.x - 7,self.basic_monster.y - 7)
+            self.basic_monster.image_basic_monster_walk[self.basic_monster.frame_basic_monster_walk].draw(self.basic_monster.x - 7, self.basic_monster.y - 20)
         else:
-            self.basic_monster.image_basic_monster_walk_left.draw[self.basic_monster.frame_basic_monster_walk].draw(self.basic_monster.x - 7,self.basic_monster.y - 7)
-
-
-
-
-
-
-
+            self.basic_monster.image_basic_monster_walk_left[self.basic_monster.frame_basic_monster_walk].draw(self.basic_monster.x + 2, self.basic_monster.y - 20)
 
 
 
@@ -81,7 +75,7 @@ class Basic_Monster:
         self.frame_basic_monster_walk = 0
 
 
-        self.IDLE = None
+        self.IDLE = Idle(self)
         self.state_machine = StateMachine(
             self.IDLE,
             {
@@ -94,5 +88,5 @@ class Basic_Monster:
         self.state_machine.update()
 
     def draw(self):
-        self.image_basic_monster_shadow.draw(self.x - 5, self.y - 74)
+        self.image_basic_monster_shadow.draw(self.x - 2, self.y - 74)
         self.state_machine.draw()
