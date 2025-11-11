@@ -10,63 +10,56 @@ def down_s(e):
 class Attack_A:
     def __init__(self, player):
         self.player = player
-        self.can_receive_input = False
-        self.next_input = None
+        self.pressed_key = None  # 어떤 키가 눌렸는지만 기록
 
     def enter(self, e):
         self.player.frame_players_attack_a = 0
-        self.image = self.player.image_players_attack_a if self.player.face_dir == 1 else self.player.image_players_attack_a_left
-        self.can_receive_input = False
-        self.next_input = None
+        self.image = (
+            self.player.image_players_attack_a
+            if self.player.face_dir == 1
+            else self.player.image_players_attack_a_left
+        )
+        self.pressed_key = None
 
     def do(self):
-        # 프레임 진행
         self.player.frame_players_attack_a += 1
 
-        if self.player.frame_players_attack_a >= 7:  # 마지막 프레임 도달
+        # 프레임 끝나면 입력 확인 후 상태 전환
+        if self.player.frame_players_attack_a >= 7:
             self.player.frame_players_attack_a = 7
-            self.can_receive_input = True
 
-            # 버퍼링된 입력이 있으면 처리
-            if self.next_input is not None:
-                self.handle_event(self.next_input)
-            else:
-                # 입력 없으면 Idle로 전환
-                self.player.state_machine.cur_state.exit(None)
-                self.player.state_machine.cur_state = self.player.IDLE
-                self.player.state_machine.cur_state.enter(None)
-
-    def handle_event(self, event):
-        if not self.can_receive_input:
-            # 프레임이 끝나기 전이면 입력 버퍼링
-            self.next_input = event
-            return
-
-        if event[0] == 'INPUT' and event[1].type == SDL_KEYDOWN:
-            key = event[1].key
-            if key == SDLK_a:
+            # 입력 판정
+            if self.pressed_key == SDLK_a:
                 next_state = Attack_A_A(self.player)
-            elif key == SDLK_s:
+            elif self.pressed_key == SDLK_s:
                 next_state = Attack_A_S(self.player)
             else:
                 next_state = self.player.IDLE
 
+            # 상태 전환
             self.player.state_machine.cur_state.exit(None)
             self.player.state_machine.cur_state = next_state
             self.player.state_machine.cur_state.enter(None)
 
+    def handle_event(self, event):
+        if event[0] == 'INPUT' and event[1].type == SDL_KEYDOWN:
+            key = event[1].key
+            # 키를 “즉시 반응”하지 않고 기록만 해둔다
+            if key in (SDLK_a, SDLK_s):
+                self.pressed_key = key
+
     def draw(self):
         if self.player.face_dir == 1:
-            self.player.image_players_attack_a[self.player.frame_players_attack_a].draw(self.player.x+22, self.player.y-8)
+            self.player.image_players_attack_a[self.player.frame_players_attack_a].draw(self.player.x + 22, self.player.y - 8)
         else:
-            self.player.image_players_attack_a_left[self.player.frame_players_attack_a].draw(self.player.x-29, self.player.y-8)
+            self.player.image_players_attack_a_left[self.player.frame_players_attack_a].draw(self.player.x - 29, self.player.y - 8)
 
 class Attack_A_A:
     def __init__(self, player):
         self.player = player
 
     def enter(self, player, e):
-        pass
+        self.player.frame_players_attack_a_a = 0
 
     def exit(self, e):
         pass
@@ -78,7 +71,12 @@ class Attack_A_A:
         pass
 
     def draw(self, player):
-       pass
+        if self.player.face_dir == 1:
+            self.player.image_players_attack_a_a[self.player.frame_players_attack_a].draw(self.player.x + 22,self.player.y - 8)
+
+        else:
+            self.player.image_players_attack_a_a_left[self.player.frame_players_attack_a].draw(self.player.x - 29,self.player.y - 8)
+
 
 class Attack_A_S:
     def __init__(self, player):
