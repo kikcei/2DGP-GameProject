@@ -1,6 +1,7 @@
 from pico2d import *
 from Maps import *
 from Player import *
+from Basic_Monster import *
 from resource_load import PlayerResourceLoad
 
 WIDTH, HEIGHT = 800, 600
@@ -24,8 +25,13 @@ def main():
 
     resource_load = PlayerResourceLoad()
     resource_load.load()
+
     map = Maps()
+
     player = Player(resource_load)
+
+    monsters = Basic_Monster(resource_load)
+
     global running
     running = True
 
@@ -36,6 +42,9 @@ def main():
         player.update()
         handle_events(player)  # player 전달
         player.draw()
+
+        monsters.update()
+        monsters.draw()
 
         update_canvas()
         delay(0.03)

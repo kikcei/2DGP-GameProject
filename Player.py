@@ -59,7 +59,6 @@ class Idle:
             self.player.image_players_stop_leg_left.draw(self.player.x - 3, self.player.y - 56)  # Adjust y position for leg
             self.player.image_players_stop_body_left[self.player.frame_players_stop_body].draw(self.player.x, self.player.y)
 
-
 class Walk:
 
     def __init__(self, player):
@@ -224,7 +223,6 @@ class Run_Attack_S:
         else:
             self.player.image_players_run_attack_s_left[self.player.frame_players_run_attack_s].draw(self.player.x - 21,
                                                                                                      self.player.y - 13)
-
 
 class Attack_A:
     def __init__(self, player):

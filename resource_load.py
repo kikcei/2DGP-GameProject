@@ -51,8 +51,8 @@ class PlayerResourceLoad:
             'special_monster2_walk_left': self.load_sequence('resources/Monster/Special_Monster/Monster2/Walk/sprites/DefineSprite_773_left', 1),
             'special_monster2_attack': self.load_sequence('resources/Monster/Special_Monster/Monster2/Attack/sprites/Attack/DefineSprite_777', 24),
             'special_monster2_attack_left': self.load_sequence('resources/Monster/Special_Monster/Monster2/Attack/sprites/Attack/DefineSprite_777_left', 24),
-            'special_monster2_attack_ammo': self.load_sequence('resources/Monster/Special_Monster/Monster2/Attack/sprites/ammo/DefineSprite_914', 1),
-            'special_monster2_attack_ammo_left': self.load_sequence('resources/Monster/Special_Monster/Monster2/Attack/sprites/ammo/DefineSprite_914_left', 1),
+            'special_monster2_attack_ammo': self.load_sequence('resources/Monster/Special_Monster/Monster2/Attack/sprites/ammo/sprites/DefineSprite_914', 1),
+            'special_monster2_attack_ammo_left': self.load_sequence('resources/Monster/Special_Monster/Monster2/Attack/sprites/ammo/sprites/DefineSprite_914_left', 1),
 
             'boos_walk': self.load_sequence('resources/Monster/Boos/Walk/sprites/DefineSprite_390', 9),
             'boos_walk_left': self.load_sequence('resources/Monster/Boos/Walk/sprites/DefineSprite_390_left', 9),
