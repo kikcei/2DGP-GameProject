@@ -3,6 +3,7 @@ from Maps import *
 from Player import *
 from Basic_Monster import *
 from Special_Monster1 import *
+from Special_Monster2 import Special_Monster2
 from resource_load import PlayerResourceLoad
 
 WIDTH, HEIGHT = 800, 600
@@ -33,7 +34,7 @@ def main():
 
     monsters = Basic_Monster(resource_load)
     special_monster1 = Special_Monster1(resource_load,player)
-
+    special_monster2 = Special_Monster2(resource_load,player)
     global running
     running = True
 
@@ -47,6 +48,9 @@ def main():
 
         special_monster1.update()
         special_monster1.draw()
+
+        special_monster2.update()
+        special_monster2.draw()
 
         player.update()
         handle_events(player)  # player 전달

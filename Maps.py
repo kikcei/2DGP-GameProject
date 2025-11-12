@@ -18,7 +18,8 @@ class Grass:
         pass
 
     def draw(self):
-        self.image.draw(400,300)
+        self.image.draw(200,220)
+        self.image.draw(600, 220)
         pass
 
 class Maps:
