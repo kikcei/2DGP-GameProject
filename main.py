@@ -5,12 +5,14 @@ from Basic_Monster import *
 from Special_Monster1 import *
 from Special_Monster2 import Special_Monster2
 from resource_load import PlayerResourceLoad
+import game_world
 
 WIDTH, HEIGHT = 800, 600
 
 
-def handle_events(player):  # player를 인자로 받음
+def handle_events():  # player를 인자로 받음
     global running
+    global player
 
     event_list = get_events()
     for event in event_list:
@@ -21,44 +23,48 @@ def handle_events(player):  # player를 인자로 받음
         else:
             player.handle_event(event)  # 기존 player 객체에 이벤트 전달
 
-
-def main():
-    open_canvas(WIDTH, HEIGHT)
-
+def reset_world():
+    global world
+    global player
     resource_load = PlayerResourceLoad()
     resource_load.load()
 
     map = Maps()
+    game_world.add_object(map, 0)
 
     player = Player(resource_load)
+    game_world.add_object(player, 1)
 
     monsters = Basic_Monster(resource_load)
+    game_world.add_object(monsters, 2)
+
     special_monster1 = Special_Monster1(resource_load,player)
+    game_world.add_object(special_monster1, 2)
+
     special_monster2 = Special_Monster2(resource_load,player)
-    global running
-    running = True
+    game_world.add_object(special_monster2, 2)
+
+
+def update_world():
+   game_world.update_world()
+
+
+def render_world():
+    clear_canvas()
+    game_world.draw_world()
+    update_canvas()
+
+
+running = True
+def main():
+    open_canvas(WIDTH, HEIGHT)
+    reset_world()
 
     while running:
         clear_canvas()
-
-        map.draw()
-
-        monsters.update()
-        monsters.draw()
-
-        special_monster1.update()
-        special_monster1.draw()
-
-        special_monster2.update()
-        special_monster2.draw()
-
-        player.update()
-        handle_events(player)  # player 전달
-        player.draw()
-
-
-
-        update_canvas()
+        handle_events()
+        update_world()
+        render_world()
         delay(0.03)
 
     close_canvas()
