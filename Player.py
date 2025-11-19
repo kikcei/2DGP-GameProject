@@ -1,9 +1,21 @@
 from pico2d import *
 from state_machine import StateMachine
 from resource_load import PlayerResourceLoad
+import game_framework
 import time
 
 DOUBLE_TAP_RUN_TIME = 0.16
+
+PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
+RUN_SPEED_KMPH = 20.0  # Km / Hour
+RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+TIME_PER_ACTION = 0.5
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 8
+FRAMES_PER_SECOND = FRAMES_PER_ACTION * ACTION_PER_TIME
 
 def down_a(eve):
     return eve[0] =='INPUT' and eve[1].type == SDL_KEYDOWN and eve[1].key == SDLK_a
@@ -48,16 +60,16 @@ class Idle:
         pass
 
     def do(self):
-        self.player.frame_players_stop_body = (self.player.frame_players_stop_body + 1) % 11
-        self.player.frame_players_stop_leg = (self.player.frame_players_stop_leg + 1) % 11
+        self.player.frame_players_stop_body = (self.player.frame_players_stop_body + FRAMES_PER_SECOND * game_framework.frame_time) % 11
+        self.player.frame_players_stop_leg = (self.player.frame_players_stop_leg + FRAMES_PER_SECOND * game_framework.frame_time) % 11
 
     def draw(self):
         if self.player.face_dir == 1:
             self.player.image_players_stop_leg.draw(self.player.x - 3, self.player.y - 56)  # Adjust y position for leg
-            self.player.image_players_stop_body[self.player.frame_players_stop_body].draw(self.player.x, self.player.y)
+            self.player.image_players_stop_body[int(self.player.frame_players_stop_body)].draw(self.player.x, self.player.y)
         else:
             self.player.image_players_stop_leg_left.draw(self.player.x - 3, self.player.y - 56)  # Adjust y position for leg
-            self.player.image_players_stop_body_left[self.player.frame_players_stop_body].draw(self.player.x, self.player.y)
+            self.player.image_players_stop_body_left[int(self.player.frame_players_stop_body)].draw(self.player.x, self.player.y)
 
 class Walk:
 
