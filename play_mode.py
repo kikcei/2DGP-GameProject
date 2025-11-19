@@ -1,4 +1,6 @@
 from pico2d import *
+
+import game_framework
 from Maps import *
 from Player import *
 from Basic_Monster import *
@@ -25,9 +27,9 @@ def handle_events():  # player를 인자로 받음
     event_list = get_events()
     for event in event_list:
         if event.type == SDL_QUIT:
-            running = False
+            game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-            running = False
+            game_framework.quit()
         else:
             player.handle_event(event)  # 기존 player 객체에 이벤트 전달
 
