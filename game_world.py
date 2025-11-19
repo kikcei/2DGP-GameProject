@@ -3,8 +3,11 @@
 
 world = [[], [], []]
 
-def add_object(o,depth):
+def add_object(o, depth):
     world[depth].append(o)
+
+def add_objects(ol, depth):
+    world[depth] += ol
 
 def update_world():
     for layer in world:
@@ -21,3 +24,8 @@ def remove_object(o):
         if o in layer:
             layer.remove(o)
             return
+
+def clear():
+    for layer in world:
+        layer.clear()
+
