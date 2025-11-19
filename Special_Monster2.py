@@ -1,3 +1,4 @@
+import game_world
 from resource_load import PlayerResourceLoad
 from state_machine import StateMachine
 import math
@@ -70,7 +71,7 @@ class Attack:
         if self.special_monster2.frame_special_monster2_attack == 14:
             ammo = Attack_Ammo(self.special_monster2)
             ammo.enter(None)
-            self.special_monster2.ammo.append(ammo)
+            game_world.add_object(ammo, 1)
         if self.special_monster2.frame_special_monster2_attack >= 23:
             dx = self.player.x - self.special_monster2.x
             dy = self.player.y - self.special_monster2.y
@@ -106,6 +107,11 @@ class Attack_Ammo:
         # 방향에 따라 이동
         self.x += self.speed * self.face_dir * -1
 
+    def update(self):
+        self.do()
+        if not (100 <= self.x <= 1280 and 0 <= self.y <= 720):
+            game_world.remove_object(self)
+
     def draw(self):
         if self.face_dir == -1:
             self.special_monster2.image_special_monster2_ammo[self.special_monster2.frame_special_monster2_ammo].draw(self.x+63, self.y-17)
@@ -134,8 +140,6 @@ class Special_Monster2:
 
         self.face_dir = random.choice([-1, 1])
 
-        self.ammo = []
-
         self.frame_special_monster2_body = 0
         self.frame_special_monster2_walk = 0
         self.frame_special_monster2_attack = 0
@@ -155,14 +159,9 @@ class Special_Monster2:
 
     def update(self):
         self.state_machine.update()
-        for ammo in self.ammo:
-            ammo.do()
-        self.ammo = [ammo for ammo in self.ammo if 100 <= ammo.x <= 1280 and 0 <= ammo.y <= 720]
 
     def draw(self):
         self.image_special_monster2_shadow.draw(self.x - 2, self.y - 74)
         self.state_machine.draw()
 
 
-        for ammo in self.ammo:
-            ammo.draw()
