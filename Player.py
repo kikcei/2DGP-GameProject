@@ -7,12 +7,12 @@ import time
 DOUBLE_TAP_RUN_TIME = 0.16
 
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
-RUN_SPEED_KMPH = 20.0  # Km / Hour
+RUN_SPEED_KMPH = 25.0  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
-TIME_PER_ACTION = 0.5
+TIME_PER_ACTION = 0.2
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 FRAMES_PER_SECOND = FRAMES_PER_ACTION * ACTION_PER_TIME
@@ -96,23 +96,23 @@ class Walk:
 
         # 프레임 갱신
         if self.player.dirx != 0 or self.player.diry != 0:
-            self.player.frame_players_walk = (self.player.frame_players_walk + 1) % 10
+            self.player.frame_players_walk = (self.player.frame_players_walk + FRAMES_PER_SECOND * game_framework.frame_time) % 10
         else:
-            self.player.frame_players_stop_body = (self.player.frame_players_stop_body + 1) % 11
-            self.player.frame_players_stop_leg = (self.player.frame_players_stop_leg + 1) % 11
+            self.player.frame_players_stop_body = (self.player.frame_players_stop_body + FRAMES_PER_SECOND * game_framework.frame_time) % 11
+            self.player.frame_players_stop_leg = (self.player.frame_players_stop_leg + FRAMES_PER_SECOND * game_framework.frame_time) % 11
 
         # 위치 갱신
-        self.player.x += self.player.dirx * 5
-        self.player.y += self.player.diry * 5
+        self.player.x += self.player.dirx * RUN_SPEED_PPS * game_framework.frame_time
+        self.player.y += self.player.diry * RUN_SPEED_PPS * game_framework.frame_time
 
     def draw(self):
         # 방향에 따라 그리기
         if self.player.face_dir == 1:
-            self.player.image_players_walk[self.player.frame_players_walk].draw(self.player.x, self.player.y)
+            self.player.image_players_walk[int(self.player.frame_players_walk)].draw(self.player.x, self.player.y)
         else:
-            self.player.image_players_walk_left[self.player.frame_players_walk].draw(self.player.x-5, self.player.y)
+            self.player.image_players_walk_left[int(self.player.frame_players_walk)].draw(self.player.x-5, self.player.y)
 
-class  Run:
+class Run:
 
     def __init__(self, player):
         self.player = player
@@ -135,21 +135,21 @@ class  Run:
 
         # 프레임 갱신
         if self.player.dirx != 0 or self.player.diry != 0:
-            self.player.frame_players_run = (self.player.frame_players_run + 1) % 5
+            self.player.frame_players_run = (self.player.frame_players_run + FRAMES_PER_SECOND * game_framework.frame_time) % 5
         else:
-            self.player.frame_players_stop_body = (self.player.frame_players_stop_body + 1) % 11
-            self.player.frame_players_stop_leg = (self.player.frame_players_stop_leg + 1) % 11
+            self.player.frame_players_stop_body = (self.player.frame_players_stop_body + FRAMES_PER_SECOND * game_framework.frame_time) % 11
+            self.player.frame_players_stop_leg = (self.player.frame_players_stop_leg + FRAMES_PER_SECOND * game_framework.frame_time) % 11
 
         # 위치 갱신
-        self.player.x += self.player.dirx * 10
-        self.player.y += self.player.diry * 10
+        self.player.x += self.player.dirx * RUN_SPEED_PPS * 2 * game_framework.frame_time
+        self.player.y += self.player.diry * RUN_SPEED_PPS * 2 * game_framework.frame_time
 
     def draw(self):
         # 방향에 따라 그리기
         if self.player.face_dir == 1:
-            self.player.image_players_run[self.player.frame_players_run].draw(self.player.x, self.player.y - 10)
+            self.player.image_players_run[int(self.player.frame_players_run)].draw(self.player.x, self.player.y - 10)
         else:
-            self.player.image_players_run_left[self.player.frame_players_run].draw(self.player.x, self.player.y - 10)
+            self.player.image_players_run_left[int(self.player.frame_players_run)].draw(self.player.x, self.player.y - 10)
 
 class Run_Attack_A:
     def __init__(self, player):
@@ -165,12 +165,12 @@ class Run_Attack_A:
 
     def do(self):
 
-        self.player.frame_players_run_attack_a += 1
+        self.player.frame_players_run_attack_a += FRAMES_PER_SECOND * game_framework.frame_time
         if self.player.frame_players_run_attack_a <= 15:
             if self.player.face_dir == 1:
-                self.player.x += 7
+                self.player.x += self.player.dirx * RUN_SPEED_PPS * 1.7 * game_framework.frame_time
             else:
-                self.player.x -= 7
+                self.player.x += self.player.dirx * RUN_SPEED_PPS * 1.7 * game_framework.frame_time
 
         if self.player.frame_players_run_attack_a >= 22:
             next_state = self.player.IDLE
@@ -188,10 +188,10 @@ class Run_Attack_A:
 
     def draw(self):
         if self.player.face_dir == 1:
-            self.player.image_players_run_attack_a[self.player.frame_players_run_attack_a].draw(self.player.x ,
+            self.player.image_players_run_attack_a[int(self.player.frame_players_run_attack_a)].draw(self.player.x ,
                                                                                         self.player.y - 8)
         else:
-            self.player.image_players_run_attack_a_left[self.player.frame_players_run_attack_a].draw(self.player.x - 7,
+            self.player.image_players_run_attack_a_left[int(self.player.frame_players_run_attack_a)].draw(self.player.x - 7,
                                                                                              self.player.y - 8)
 
 class Run_Attack_S:
@@ -208,11 +208,11 @@ class Run_Attack_S:
 
     def do(self):
 
-        self.player.frame_players_run_attack_s += 1
+        self.player.frame_players_run_attack_s += FRAMES_PER_SECOND * game_framework.frame_time
         if self.player.face_dir == 1:
-            self.player.x += 7
+            self.player.x += self.player.dirx * RUN_SPEED_PPS * 1.5 * game_framework.frame_time
         else:
-            self.player.x -= 7
+            self.player.x += self.player.dirx * RUN_SPEED_PPS * 1.5 * game_framework.frame_time
 
         if self.player.frame_players_run_attack_s >= 14:
             next_state = self.player.IDLE
@@ -230,10 +230,10 @@ class Run_Attack_S:
 
     def draw(self):
         if self.player.face_dir == 1:
-            self.player.image_players_run_attack_s[self.player.frame_players_run_attack_s].draw(self.player.x + 14,
+            self.player.image_players_run_attack_s[int(self.player.frame_players_run_attack_s)].draw(self.player.x + 14,
                                                                                                 self.player.y - 13)
         else:
-            self.player.image_players_run_attack_s_left[self.player.frame_players_run_attack_s].draw(self.player.x - 21,
+            self.player.image_players_run_attack_s_left[int(self.player.frame_players_run_attack_s)].draw(self.player.x - 21,
                                                                                                      self.player.y - 13)
 
 class Attack_A:
@@ -250,7 +250,7 @@ class Attack_A:
 
     def do(self):
 
-        self.player.frame_players_attack_a += 1
+        self.player.frame_players_attack_a += FRAMES_PER_SECOND * game_framework.frame_time
 
         if self.player.frame_players_attack_a >= 7:
             next_state = self.player.IDLE
@@ -275,9 +275,9 @@ class Attack_A:
 
     def draw(self):
         if self.player.face_dir == 1:
-            self.player.image_players_attack_a[self.player.frame_players_attack_a].draw(self.player.x + 22, self.player.y - 8)
+            self.player.image_players_attack_a[int(self.player.frame_players_attack_a)].draw(self.player.x + 22, self.player.y - 8)
         else:
-            self.player.image_players_attack_a_left[self.player.frame_players_attack_a].draw(self.player.x - 29, self.player.y - 8)
+            self.player.image_players_attack_a_left[int(self.player.frame_players_attack_a)].draw(self.player.x - 29, self.player.y - 8)
 
 class Attack_A_A:
     def __init__(self, player):
@@ -292,7 +292,7 @@ class Attack_A_A:
         self.input_queue.clear()
 
     def do(self):
-        self.player.frame_players_attack_a_a += 1
+        self.player.frame_players_attack_a_a += FRAMES_PER_SECOND * game_framework.frame_time
 
         if self.player.frame_players_attack_a_a >= 9:
             self.player.frame_players_attack_a_a = 9
@@ -314,9 +314,9 @@ class Attack_A_A:
 
     def draw(self):
         if self.player.face_dir == 1:
-            self.player.image_players_attack_a_a[self.player.frame_players_attack_a_a].draw(self.player.x + 22, self.player.y - 9)
+            self.player.image_players_attack_a_a[int(self.player.frame_players_attack_a_a)].draw(self.player.x + 22, self.player.y - 9)
         else:
-            self.player.image_players_attack_a_a_left[self.player.frame_players_attack_a_a].draw(self.player.x - 29, self.player.y - 9)
+            self.player.image_players_attack_a_a_left[int(self.player.frame_players_attack_a_a)].draw(self.player.x - 29, self.player.y - 9)
 
 class Attack_A_S:
     def __init__(self, player):
@@ -331,7 +331,7 @@ class Attack_A_S:
         self.input_queue.clear()
 
     def do(self):
-        self.player.frame_players_attack_a_s += 1
+        self.player.frame_players_attack_a_s += FRAMES_PER_SECOND * game_framework.frame_time
 
         if self.player.frame_players_attack_a_s >= 13:
             self.player.frame_players_attack_a_s = 13
@@ -355,10 +355,10 @@ class Attack_A_S:
 
     def draw(self):
         if self.player.face_dir == 1:
-            self.player.image_players_attack_a_s[self.player.frame_players_attack_a_s].draw(self.player.x + 35,self.player.y - 3)
+            self.player.image_players_attack_a_s[int(self.player.frame_players_attack_a_s)].draw(self.player.x + 35,self.player.y - 3)
 
         else:
-            self.player.image_players_attack_a_s_left[self.player.frame_players_attack_a_s].draw(self.player.x - 43, self.player.y - 3)
+            self.player.image_players_attack_a_s_left[int(self.player.frame_players_attack_a_s)].draw(self.player.x - 43, self.player.y - 3)
 
 class Attack_A_S_A:
     def __init__(self, player):
@@ -373,7 +373,7 @@ class Attack_A_S_A:
         self.input_queue.clear()
 
     def do(self):
-        self.player.frame_players_attack_a_s_a += 1
+        self.player.frame_players_attack_a_s_a += FRAMES_PER_SECOND * game_framework.frame_time
 
         if self.player.frame_players_attack_a_s_a >= 18:
             self.player.frame_players_attack_a_s_a = 18
@@ -391,10 +391,10 @@ class Attack_A_S_A:
 
     def draw(self):
         if self.player.face_dir == 1:
-            self.player.image_players_attack_a_s_a[self.player.frame_players_attack_a_s_a].draw(self.player.x + 15,
+            self.player.image_players_attack_a_s_a[int(self.player.frame_players_attack_a_s_a)].draw(self.player.x + 15,
                                                                                                 self.player.y + 24)
         else:
-            self.player.image_players_attack_a_s_a_left[self.player.frame_players_attack_a_s_a].draw(self.player.x - 20,
+            self.player.image_players_attack_a_s_a_left[int(self.player.frame_players_attack_a_s_a)].draw(self.player.x - 20,
                                                                                                      self.player.y + 25)
 
 class Attack_S:
@@ -410,7 +410,7 @@ class Attack_S:
         self.input_queue.clear()
 
     def do(self):
-        self.player.frame_players_attack_s += 1
+        self.player.frame_players_attack_s += FRAMES_PER_SECOND * game_framework.frame_time
 
         if self.player.frame_players_attack_s >= 13:
             self.player.frame_players_attack_s = 13
@@ -433,9 +433,9 @@ class Attack_S:
 
     def draw(self):
         if self.player.face_dir == 1:
-            self.player.image_players_attack_s[self.player.frame_players_attack_s].draw(self.player.x + 15,self.player.y - 12 )
+            self.player.image_players_attack_s[int(self.player.frame_players_attack_s)].draw(self.player.x + 15,self.player.y - 12 )
         else:
-            self.player.image_players_attack_s_left[self.player.frame_players_attack_s].draw(self.player.x - 20, self.player.y - 12 )
+            self.player.image_players_attack_s_left[int(self.player.frame_players_attack_s)].draw(self.player.x - 20, self.player.y - 12 )
 
 class Attack_S_S:
     def __init__(self, player):
@@ -450,7 +450,7 @@ class Attack_S_S:
         self.input_queue.clear()
 
     def do(self):
-        self.player.frame_players_attack_s_s += 1
+        self.player.frame_players_attack_s_s += FRAMES_PER_SECOND * game_framework.frame_time
 
         if self.player.frame_players_attack_s_s >= 14:
             self.player.frame_players_attack_s_s = 14
@@ -469,10 +469,10 @@ class Attack_S_S:
 
     def draw(self):
         if self.player.face_dir == 1:
-            self.player.image_players_attack_s_s[self.player.frame_players_attack_s_s].draw(self.player.x + 15,
+            self.player.image_players_attack_s_s[int(self.player.frame_players_attack_s_s)].draw(self.player.x + 15,
                                                                                         self.player.y - 12)
         else:
-            self.player.image_players_attack_s_s_left[self.player.frame_players_attack_s_s].draw(self.player.x - 20,
+            self.player.image_players_attack_s_s_left[int(self.player.frame_players_attack_s_s)].draw(self.player.x - 20,
                                                                                              self.player.y - 12)
 
 

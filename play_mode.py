@@ -74,7 +74,7 @@ def main():
         handle_events()
         update()
         render()
-        delay(0.03)
+
 
     close_canvas()
 
