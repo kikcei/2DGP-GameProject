@@ -1,14 +1,15 @@
+import game_framework
 from resource_load import PlayerResourceLoad
 from state_machine import StateMachine
 import random
 
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
-RUN_SPEED_KMPH = 25.0  # Km / Hour
+RUN_SPEED_KMPH = 12.0  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
-TIME_PER_ACTION = 0.2
+TIME_PER_ACTION = 0.3
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 FRAMES_PER_SECOND = FRAMES_PER_ACTION * ACTION_PER_TIME
@@ -34,7 +35,7 @@ class Idle:
 
     def do(self):
         speed = 3
-        self.basic_monster.frame_basic_monster_walk=(self.basic_monster.frame_basic_monster_walk + 1) % 8
+        self.basic_monster.frame_basic_monster_walk=(self.basic_monster.frame_basic_monster_walk + FRAMES_PER_SECOND * game_framework.frame_time) % 8
 
         if self.basic_monster.x <= self.min_x:  # 왼쪽 벽
             self.basic_monster.x = self.min_x
@@ -52,15 +53,15 @@ class Idle:
             self.basic_monster.y = self.max_y
             self.basic_monster.diry *= -1
 
-        self.basic_monster.x += self.basic_monster.dirx * speed
-        self.basic_monster.y += self.basic_monster.diry * speed
+        self.basic_monster.x += self.basic_monster.dirx * RUN_SPEED_PPS * game_framework.frame_time
+        self.basic_monster.y += self.basic_monster.diry * RUN_SPEED_PPS * game_framework.frame_time
 
 
     def draw(self):
         if self.basic_monster.face_dir == 1:
-            self.basic_monster.image_basic_monster_walk[self.basic_monster.frame_basic_monster_walk].draw(self.basic_monster.x - 7, self.basic_monster.y - 20)
+            self.basic_monster.image_basic_monster_walk[int(self.basic_monster.frame_basic_monster_walk)].draw(self.basic_monster.x - 7, self.basic_monster.y - 20)
         else:
-            self.basic_monster.image_basic_monster_walk_left[self.basic_monster.frame_basic_monster_walk].draw(self.basic_monster.x + 2, self.basic_monster.y - 20)
+            self.basic_monster.image_basic_monster_walk_left[int(self.basic_monster.frame_basic_monster_walk)].draw(self.basic_monster.x + 2, self.basic_monster.y - 20)
 
 
 

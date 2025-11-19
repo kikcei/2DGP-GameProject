@@ -1,3 +1,4 @@
+import game_framework
 import game_world
 from resource_load import PlayerResourceLoad
 from state_machine import StateMachine
@@ -5,12 +6,12 @@ import math
 import random
 
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
-RUN_SPEED_KMPH = 25.0  # Km / Hour
+RUN_SPEED_KMPH = 7.0  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
-TIME_PER_ACTION = 0.2
+TIME_PER_ACTION = 0.3
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 FRAMES_PER_SECOND = FRAMES_PER_ACTION * ACTION_PER_TIME
@@ -27,7 +28,7 @@ class Idle:
         pass
 
     def do(self):
-        self.special_monster2.frame_special_monster2_body=(self.special_monster2.frame_special_monster2_body + 1) % 8
+        self.special_monster2.frame_special_monster2_body=(self.special_monster2.frame_special_monster2_body + FRAMES_PER_SECOND * game_framework.frame_time) % 8
 
         dx = self.player.x - self.special_monster2.x
         dy = self.player.y - self.special_monster2.y
@@ -37,13 +38,13 @@ class Idle:
 
         speed = 2  # 이동 속도 (원하면 special_monster1.speed 로 대체 가능)
         if abs(dx)<340:
-            self.special_monster2.x -= math.cos(rad) * 2
+            self.special_monster2.x -= math.cos(rad) * 2 * RUN_SPEED_PPS * game_framework.frame_time
         elif 340 < abs(dx) <= 350:
             self.special_monster2.x = self.special_monster2.x
-            self.special_monster2.y += math.sin(rad) * 3
+            self.special_monster2.y += math.sin(rad) * 3 * RUN_SPEED_PPS * game_framework.frame_time
         else:
-            self.special_monster2.x += math.cos(rad) * 1.5
-        self.special_monster2.y += math.sin(rad) * 3
+            self.special_monster2.x += math.cos(rad) * 1.5 * RUN_SPEED_PPS * game_framework.frame_time
+        self.special_monster2.y += math.sin(rad) * 3 * RUN_SPEED_PPS * game_framework.frame_time
 
         if self.player.x <= self.special_monster2.x:
             self.special_monster2.face_dir = 1
@@ -59,11 +60,11 @@ class Idle:
 
     def draw(self):
         if self.special_monster2.face_dir == -1:
-            self.special_monster2.image_special_monster2_body[self.special_monster2.frame_special_monster2_body].draw(self.special_monster2.x - 7, self.special_monster2.y - 20)
-            self.special_monster2.image_special_monster2_walk[self.special_monster2.frame_special_monster2_walk].draw(self.special_monster2.x-1 , self.special_monster2.y  -31)
+            self.special_monster2.image_special_monster2_body[int(self.special_monster2.frame_special_monster2_body)].draw(self.special_monster2.x - 7, self.special_monster2.y - 20)
+            self.special_monster2.image_special_monster2_walk[int(self.special_monster2.frame_special_monster2_walk)].draw(self.special_monster2.x-1 , self.special_monster2.y  -31)
         else:
-            self.special_monster2.image_special_monster2_body_left[self.special_monster2.frame_special_monster2_body].draw(self.special_monster2.x + 2, self.special_monster2.y - 20)
-            self.special_monster2.image_special_monster2_walk_left[self.special_monster2.frame_special_monster2_walk].draw(self.special_monster2.x - 3, self.special_monster2.y - 31)
+            self.special_monster2.image_special_monster2_body_left[int(self.special_monster2.frame_special_monster2_body)].draw(self.special_monster2.x + 2, self.special_monster2.y - 20)
+            self.special_monster2.image_special_monster2_walk_left[int(self.special_monster2.frame_special_monster2_walk)].draw(self.special_monster2.x - 3, self.special_monster2.y - 31)
 
 class Attack:
     def __init__(self, special_monster2,player):
@@ -77,8 +78,11 @@ class Attack:
         pass
 
     def do(self):
-        self.special_monster2.frame_special_monster2_attack = self.special_monster2.frame_special_monster2_attack+1
-        if self.special_monster2.frame_special_monster2_attack == 14:
+        prev = int(self.special_monster2.frame_special_monster2_attack)
+        self.special_monster2.frame_special_monster2_attack += FRAMES_PER_SECOND * game_framework.frame_time
+        curr = int(self.special_monster2.frame_special_monster2_attack)
+
+        if prev < 14 <= curr:
             ammo = Attack_Ammo(self.special_monster2)
             ammo.enter(None)
             game_world.add_object(ammo, 1)
@@ -98,9 +102,9 @@ class Attack:
 
     def draw(self):
         if self.special_monster2.face_dir == -1:
-            self.special_monster2.image_special_monster2_attack[self.special_monster2.frame_special_monster2_attack].draw(self.special_monster2.x + 70, self.special_monster2.y - 27)
+            self.special_monster2.image_special_monster2_attack[int(self.special_monster2.frame_special_monster2_attack)].draw(self.special_monster2.x + 70, self.special_monster2.y - 27)
         else:
-            self.special_monster2.image_special_monster2_attack_left[self.special_monster2.frame_special_monster2_attack].draw(self.special_monster2.x - 70 ,self.special_monster2.y - 27)
+            self.special_monster2.image_special_monster2_attack_left[int(self.special_monster2.frame_special_monster2_attack)].draw(self.special_monster2.x - 70 ,self.special_monster2.y - 27)
 
 class Attack_Ammo:
     def __init__(self, special_monster2):
@@ -108,14 +112,14 @@ class Attack_Ammo:
         self.face_dir = 1
         self.x = special_monster2.x
         self.y = special_monster2.y
-        self.speed = 15
+        self.speed = 9
 
     def enter(self, e):
         self.face_dir = self.special_monster2.face_dir
 
     def do(self):
         # 방향에 따라 이동
-        self.x += self.speed * self.face_dir * -1
+        self.x += self.speed * self.face_dir * -1 * RUN_SPEED_PPS * game_framework.frame_time
 
     def update(self):
         self.do()

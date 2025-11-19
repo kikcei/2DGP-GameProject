@@ -1,15 +1,16 @@
+import game_framework
 from resource_load import PlayerResourceLoad
 from state_machine import StateMachine
 import math
 import random
 
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
-RUN_SPEED_KMPH = 25.0  # Km / Hour
+RUN_SPEED_KMPH = 20.0  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
-TIME_PER_ACTION = 0.2
+TIME_PER_ACTION = 0.25
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 FRAMES_PER_SECOND = FRAMES_PER_ACTION * ACTION_PER_TIME
@@ -30,7 +31,7 @@ class Idle:
     def do(self):
 
 
-        self.special_monster1.frame_special_monster1_walk = (self.special_monster1.frame_special_monster1_walk + 1)%8
+        self.special_monster1.frame_special_monster1_walk = (self.special_monster1.frame_special_monster1_walk + FRAMES_PER_SECOND * game_framework.frame_time)%8
         # --- 플레이어 방향으로 이동하는 로직 ---
 
         dx = self.player.x - self.special_monster1.x
@@ -39,12 +40,11 @@ class Idle:
 
         distance = math.sqrt(dx * dx + dy * dy)
 
-        speed = 2  # 이동 속도 (원하면 special_monster1.speed 로 대체 가능)
         if abs(dx) >= 100:
-            self.special_monster1.x += math.cos(rad) * speed
+            self.special_monster1.x += math.cos(rad) * RUN_SPEED_PPS * game_framework.frame_time
         elif abs(dx) < 95:
-            self.special_monster1.x -= math.cos(rad) * speed
-        self.special_monster1.y += math.sin(rad) * 3
+            self.special_monster1.x -= math.cos(rad) * RUN_SPEED_PPS * game_framework.frame_time
+        self.special_monster1.y += math.sin(rad)  * RUN_SPEED_PPS * game_framework.frame_time
 
         # --- 방향 결정 ---
         if self.player.x <= self.special_monster1.x:
@@ -68,9 +68,9 @@ class Idle:
 
     def draw(self):
         if self.special_monster1.face_dir == 1:
-            self.special_monster1.image_special_monster1_walk[self.special_monster1.frame_special_monster1_walk].draw(self.special_monster1.x , self.special_monster1.y -4 )
+            self.special_monster1.image_special_monster1_walk[int(self.special_monster1.frame_special_monster1_walk)].draw(self.special_monster1.x , self.special_monster1.y -4 )
         else:
-            self.special_monster1.image_special_monster1_walk_left[self.special_monster1.frame_special_monster1_walk].draw(self.special_monster1.x-6 , self.special_monster1.y -4)
+            self.special_monster1.image_special_monster1_walk_left[int(self.special_monster1.frame_special_monster1_walk)].draw(self.special_monster1.x-6 , self.special_monster1.y -4)
 
 
 class Attack1:
@@ -86,7 +86,7 @@ class Attack1:
         pass
 
     def do(self):
-        self.special_monster1.frame_special_monster1_attack1 = self.special_monster1.frame_special_monster1_attack1 + 1
+        self.special_monster1.frame_special_monster1_attack1 = self.special_monster1.frame_special_monster1_attack1 + FRAMES_PER_SECOND * game_framework.frame_time
 
         if self.special_monster1.frame_special_monster1_attack1 >=13:
             self.special_monster1.state_machine.cur_state.exit(None)
@@ -96,9 +96,9 @@ class Attack1:
 
     def draw(self):
         if self.special_monster1.face_dir == 1:
-            self.special_monster1.image_special_monster1_attack1[self.special_monster1.frame_special_monster1_attack1].draw(self.special_monster1.x + 4, self.special_monster1.y - 9)
+            self.special_monster1.image_special_monster1_attack1[int(self.special_monster1.frame_special_monster1_attack1)].draw(self.special_monster1.x + 4, self.special_monster1.y - 9)
         else:
-            self.special_monster1.image_special_monster1_attack1_left[self.special_monster1.frame_special_monster1_attack1].draw(self.special_monster1.x - 6,self.special_monster1.y - 9)
+            self.special_monster1.image_special_monster1_attack1_left[int(self.special_monster1.frame_special_monster1_attack1)].draw(self.special_monster1.x - 6,self.special_monster1.y - 9)
 
 
 class Attack2:
@@ -112,7 +112,7 @@ class Attack2:
         pass
 
     def do(self):
-        self.special_monster1.frame_special_monster1_attack2 = self.special_monster1.frame_special_monster1_attack2 + 1
+        self.special_monster1.frame_special_monster1_attack2 = self.special_monster1.frame_special_monster1_attack2 + FRAMES_PER_SECOND * game_framework.frame_time
 
         if self.special_monster1.frame_special_monster1_attack2 >= 12:
             self.special_monster1.state_machine.cur_state.exit(None)
@@ -121,12 +121,11 @@ class Attack2:
 
     def draw(self):
         if self.special_monster1.face_dir == 1:
-            self.special_monster1.image_special_monster1_attack2[
-                self.special_monster1.frame_special_monster1_attack2].draw(self.special_monster1.x-2,
+            self.special_monster1.image_special_monster1_attack2[int(self.special_monster1.frame_special_monster1_attack2)].draw(self.special_monster1.x-2,
                                                                            self.special_monster1.y +13)
         else:
-            self.special_monster1.image_special_monster1_attack2_left[
-                self.special_monster1.frame_special_monster1_attack2].draw(self.special_monster1.x - 4,
+            self.special_monster1.image_special_monster1_attack2_left[int(
+                self.special_monster1.frame_special_monster1_attack2)].draw(self.special_monster1.x - 4,
                                                                            self.special_monster1.y +13)
 
 
@@ -141,7 +140,7 @@ class Attack3:
         pass
 
     def do(self):
-        self.special_monster1.frame_special_monster1_attack3 = self.special_monster1.frame_special_monster1_attack3 + 1
+        self.special_monster1.frame_special_monster1_attack3 = self.special_monster1.frame_special_monster1_attack3 + FRAMES_PER_SECOND * game_framework.frame_time
 
 
         if self.special_monster1.frame_special_monster1_attack3 >= 13:
@@ -151,12 +150,12 @@ class Attack3:
 
     def draw(self):
         if self.special_monster1.face_dir == 1:
-            self.special_monster1.image_special_monster1_attack3[
-                self.special_monster1.frame_special_monster1_attack3].draw(self.special_monster1.x+13,
+            self.special_monster1.image_special_monster1_attack3[int(
+                self.special_monster1.frame_special_monster1_attack3)].draw(self.special_monster1.x+13,
                                                                            self.special_monster1.y - 11)
         else:
-            self.special_monster1.image_special_monster1_attack3_left[
-                self.special_monster1.frame_special_monster1_attack3].draw(self.special_monster1.x - 19,
+            self.special_monster1.image_special_monster1_attack3_left[int(
+                self.special_monster1.frame_special_monster1_attack3)].draw(self.special_monster1.x - 19,
                                                                            self.special_monster1.y - 11)
 
 
