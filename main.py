@@ -1,6 +1,6 @@
 from pico2d import *
 
-import logo_mode
+import title_mode
 import play_mode
 
 
