@@ -61,7 +61,6 @@ def main():
     reset_world()
 
     while running:
-        clear_canvas()
         handle_events()
         update_world()
         render_world()
