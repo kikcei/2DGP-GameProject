@@ -9,6 +9,14 @@ import game_world
 
 WIDTH, HEIGHT = 800, 600
 
+def init():
+    global running
+    running = True
+    reset_world()
+
+def finish():
+    game_world.clear()
+    pass
 
 def handle_events():  # player를 인자로 받음
     global running
@@ -45,11 +53,11 @@ def reset_world():
     game_world.add_object(special_monster2, 2)
 
 
-def update_world():
+def update():
    game_world.update_world()
 
 
-def render_world():
+def draw():
     clear_canvas()
     game_world.draw_world()
     update_canvas()
@@ -62,8 +70,8 @@ def main():
 
     while running:
         handle_events()
-        update_world()
-        render_world()
+        update()
+        render()
         delay(0.03)
 
     close_canvas()
@@ -71,3 +79,9 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+def pause():
+    pass
+
+def resume():
+    pass
