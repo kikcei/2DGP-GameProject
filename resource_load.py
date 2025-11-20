@@ -65,6 +65,7 @@ class PlayerResourceLoad:
             'boos_attack2_left': self.load_sequence('resources/Monster/Boos/Attack/Attack_2/sprites/DefineSprite_571_left', 32),
             'boos_attack_gun': self.load_sequence('resources/Monster/Boos/Attack/Attack_Gun/sprites/DefineSprite_589',                  24),
             'boos_attack_gun_left': self.load_sequence('resources/Monster/Boos/Attack/Attack_Gun/sprites/DefineSprite_589_left', 24),
+            'boos_attack_skill': self.load_sequence('resources/Monster/Boos/Attack/Skill/sprites/DefineSprite_604', 12),
         }
 
     def load_sequence(self, base_path, count):

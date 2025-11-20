@@ -66,11 +66,17 @@ class Idle:
             self.boos.state_machine.cur_state = next_state
             self.boos.state_machine.cur_state.enter(None)
 
-        elif abs(dy) < 20 and abs(dx) > 350:
+        elif abs(dy) < 20 and 400> abs(dx) > 300:
             next_state = self.boos.ATTACK_Gun
             self.boos.state_machine.cur_state.exit(None)
             self.boos.state_machine.cur_state = next_state
             self.boos.state_machine.cur_state.enter(None)
+        else:
+            if random.random() < 0.001:
+                next_state = self.boos.ATTACK_SKILL
+                self.boos.state_machine.cur_state.exit(None)
+                self.boos.state_machine.cur_state = next_state
+                self.boos.state_machine.cur_state.enter(None)
 
     def draw(self):
         if self.boos.face_dir == 1:
@@ -132,6 +138,7 @@ class Attack2:
 class Attack_Gun:
     def __init__(self,boos):
         self.boos = boos
+
     def enter(self,e):
         self.boos.frame_boos_attack_gun = 0
 
@@ -153,19 +160,54 @@ class Attack_Gun:
 
 
 class Skill:
-    def __init__(self):
-        pass
-    def enter(self,e):
-        pass
+    def __init__(self, boos):
+        self.boos = boos
+        self.min_x = 40
+        self.min_y = 40
+        self.max_x = 760
+        self.max_y = 560
+        self.timer = 0
 
+    def enter(self,e):
+        self.boos.frame_boos_attack_skill = 0
+        self.timer = 0
     def exit(self,e):
         pass
 
     def do(self):
-        pass
+        self.boos.frame_boos_attack_skill = (self.boos.frame_boos_attack_skill + FRAMES_PER_SECOND * 1.5 * game_framework.frame_time) % 12
+        self.timer += game_framework.frame_time
+
+        if self.timer >= 5:
+            self.boos.state_machine.cur_state.exit(None)
+            self.boos.state_machine.cur_state = self.boos.IDLE
+            self.boos.state_machine.cur_state.enter(None)
+
+        if self.boos.x <= self.min_x:  # 왼쪽 벽
+            self.boos.x = self.min_x
+            self.boos.dirx *= -1
+            self.boos.face_dir = 1
+        elif self.boos.x >= self.max_x:  # 오른쪽 벽
+            self.boos.x = self.max_x
+            self.boos.dirx *= -1
+            self.boos.face_dir = -1
+
+        if self.boos.y <= self.min_y:  # 아래 벽
+            self.boos.y = self.min_y
+            self.boos.diry *= -1
+        elif self.boos.y >= self.max_y:  # 위 벽
+            self.boos.y = self.max_y
+            self.boos.diry *= -1
+
+        self.boos.x += self.boos.dirx * RUN_SPEED_PPS * 3 * game_framework.frame_time
+        self.boos.y += self.boos.diry * RUN_SPEED_PPS * 3 * game_framework.frame_time
+
+
+
 
     def draw(self):
-        pass
+        self.boos.image_boos_attack_skill[int(self.boos.frame_boos_attack_skill)].draw(self.boos.x , self.boos.y )
+
 
 class Boos:
 
@@ -181,20 +223,25 @@ class Boos:
         self.image_boos_attack2_left = resource_loader.get('boos_attack2_left')
         self.image_boos_attack_gun = resource_loader.get('boos_attack_gun')
         self.image_boos_attack_gun_left = resource_loader.get('boos_attack_gun_left')
+        self.image_boos_attack_skill = resource_loader.get('boos_attack_skill')
 
         self.x = 600
         self.y = 400
+        self.dirx = random.choice([-1, 1])
+        self.diry = random.choice([-1, 1])
+        self.face_dir = random.choice([-1, 1])
 
         self.frame_boos_walk = 0
         self.frame_boos_attack1 = 0
         self.frame_boos_attack2 = 0
         self.frame_boos_attack_gun = 0
+        self.frame_boos_attack_skill = 0
 
         self.IDLE = Idle(self,player)
         self.ATTACK1 = Attack1(self)
         self.ATTACK2 = Attack2(self)
         self.ATTACK_Gun = Attack_Gun(self)
-        self.skill = Skill()
+        self.ATTACK_SKILL = Skill(self)
 
         self.state_machine = StateMachine(
             self.IDLE,
