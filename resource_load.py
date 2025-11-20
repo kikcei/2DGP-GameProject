@@ -59,11 +59,11 @@ class PlayerResourceLoad:
 
             'boos_walk': self.load_sequence('resources/Monster/Boos/Walk/sprites/DefineSprite_390', 9),
             'boos_walk_left': self.load_sequence('resources/Monster/Boos/Walk/sprites/DefineSprite_390_left', 9),
-            'boos_attack1': self.load_sequence('resources/Monster/Boos/Attack/Attack_1/sprites/DefineSprite_579', 9),
-            'boos_attack1_left': self.load_sequence('resources/Monster/Boos/Attack/Attack_1/sprites/DefineSprite_579_left', 9),
+            'boos_attack1': self.load_sequence('resources/Monster/Boos/Attack/Attack_1/sprites/DefineSprite_579', 16),
+            'boos_attack1_left': self.load_sequence('resources/Monster/Boos/Attack/Attack_1/sprites/DefineSprite_579_left', 16),
             'boos_attack2': self.load_sequence('resources/Monster/Boos/Attack/Attack_2/sprites/DefineSprite_571_left', 32),
             'boos_attack2_left': self.load_sequence('resources/Monster/Boos/Attack/Attack_2/sprites/DefineSprite_571_left', 32),
-            'boos_attack_gun': self.load_sequence('resources/Monster/Boos/Attack/Attack_Gun/sprites/DefineSprite_589_left',                  24),
+            'boos_attack_gun': self.load_sequence('resources/Monster/Boos/Attack/Attack_Gun/sprites/DefineSprite_589',                  24),
             'boos_attack_gun_left': self.load_sequence('resources/Monster/Boos/Attack/Attack_Gun/sprites/DefineSprite_589_left', 24),
         }
 

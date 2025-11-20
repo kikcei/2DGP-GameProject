@@ -34,11 +34,9 @@ class Idle:
         dy = self.player.y - self.special_monster2.y
         rad = math.atan2(dy, dx)  # 각도 계산
 
-        distance = math.sqrt(dx * dx + dy * dy)
-
-        speed = 2  # 이동 속도 (원하면 special_monster1.speed 로 대체 가능)
         if abs(dx)<340:
             self.special_monster2.x -= math.cos(rad) * 1.3 * RUN_SPEED_PPS * game_framework.frame_time
+
         elif 340 < abs(dx) <= 350:
             self.special_monster2.x = self.special_monster2.x
             self.special_monster2.y += math.sin(rad) * 2 * RUN_SPEED_PPS * game_framework.frame_time
