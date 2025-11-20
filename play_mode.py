@@ -1,6 +1,7 @@
 from pico2d import *
 
 import game_framework
+from BOOS import Boos
 from Maps import *
 from Player import *
 from Basic_Monster import *
@@ -53,6 +54,9 @@ def reset_world():
 
     special_monster2 = Special_Monster2(resource_load,player)
     game_world.add_object(special_monster2, 2)
+
+    boos = Boos(resource_load,player)
+    game_world.add_object(boos, 2)
 
 
 def update():
